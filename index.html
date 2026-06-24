@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    window.addEventListener('error', function(e) {
+      const div = document.createElement('div');
+      div.style.position = 'fixed';
+      div.style.top = '10px';
+      div.style.left = '10px';
+      div.style.right = '10px';
+      div.style.background = 'rgba(220, 38, 38, 0.95)';
+      div.style.color = '#fff';
+      div.style.padding = '15px';
+      div.style.borderRadius = '8px';
+      div.style.zIndex = '99999';
+      div.style.fontFamily = 'monospace';
+      div.style.fontSize = '13px';
+      div.style.whiteSpace = 'pre-wrap';
+      div.style.boxShadow = '0 5px 20px rgba(0,0,0,0.5)';
+      div.innerHTML = '<strong>JavaScript Error:</strong> ' + e.message + '<br>File: ' + e.filename + '<br>Line: ' + e.lineno + '<br><br>Stack:<br>' + (e.error ? e.error.stack : '');
+      document.body.appendChild(div);
+    });
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pradeep's portfolio</title>
+  <meta name="description" content="Explore my premium Glowmorphic and Glassmorphic portfolio featuring full stack development, interactive animations, and live Supabase sync.">
+  
+  <!-- Favicon / Brand Logo -->
+  <link rel="icon" type="image/jpeg" href="avatar.jpg">
+  
+  <!-- Search Engine / SEO Metadata (Open Graph) -->
+  <meta property="og:title" content="Pradeep's Portfolio">
+  <meta property="og:description" content="Explore my premium Glowmorphic and Glassmorphic portfolio featuring full stack development, interactive animations, and live Supabase sync.">
+  <meta property="og:image" content="avatar.jpg">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:type" content="website">
+  
+  <!-- Twitter Metadata -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Pradeep Kumar | Modern Glassmorphic Portfolio">
+  <meta name="twitter:description" content="Explore my premium Glowmorphic and Glassmorphic portfolio featuring full stack development, interactive animations, and live Supabase sync.">
+  <meta name="twitter:image" content="avatar.jpg">
+
+  <link rel="stylesheet" href="style.css">
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- Ambient Glow Background -->
+  <div class="glow-wrapper">
+    <div class="glow-blob blob-1"></div>
+    <div class="glow-blob blob-2"></div>
+    <div class="glow-blob blob-3"></div>
+  </div>
+  <div class="grid-overlay"></div>
+  <div id="cursor-glow"></div>
+
+  <!-- Header -->
+  <header>
+    <nav class="nav-container glass-panel">
+      <div class="logo" id="nav-logo">Pradeep.dev</div>
+      <ul class="nav-links">
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="header-actions">
+        <button class="btn-glass" id="btn-admin-toggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          Admin
+        </button>
+        <span class="edit-badge" id="admin-badge">Admin Mode</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    
+    <!-- Hero Section -->
+    <section id="home">
+      <div class="hero-wrapper">
+        <div class="hero-content">
+          <div class="badge-glow" id="hero-badge">Welcome to my Space</div>
+          <h1 class="hero-title">Hi, I'm <br><span id="hero-name">Pradeep Kumar</span></h1>
+          <h2 class="timeline-company" id="hero-title-text" style="font-size: 24px; font-family: var(--font-title); font-weight: 700; margin-top: -10px;">Full Stack Developer</h2>
+          <p class="hero-bio" id="hero-bio-text">I craft visually stunning, highly interactive, and responsive web applications with modern design languages like Glassmorphism and Glowmorphism.</p>
+          <div class="hero-cta">
+            <a href="#projects" class="btn-primary">
+              View Work
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </a>
+            <a href="#contact" class="btn-glass">Get in Touch</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="avatar-glow"></div>
+          <div class="avatar-glass">
+            <img src="avatar.jpg" alt="Pradeep Kumar" id="hero-avatar" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop'">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About & Skills Section -->
+    <section id="about">
+      <h2 class="section-title">About Me</h2>
+      <div class="about-card glass-panel" style="margin-top: 20px;">
+        <p class="hero-bio" id="about-bio-text" style="max-width: 100%; font-size: 16px;">
+          I am a passionate software engineer focused on building clean frontend interfaces and scalable backend systems. With a strong eye for detail, I integrate technologies like Supabase, React, and modular JavaScript to bring ideas to life. Let's build something exceptional together.
+        </p>
+        <h3 style="font-family: var(--font-title); font-size: 20px; font-weight: 700; margin-top: 30px; margin-bottom: 15px; color: var(--primary-glow);">Core Technologies</h3>
+        <div class="skills-grid" id="skills-list">
+          <!-- Populated Dynamically -->
+          <div class="skill-tag">HTML5 & CSS3</div>
+          <div class="skill-tag">JavaScript (ES6+)</div>
+          <div class="skill-tag">React</div>
+          <div class="skill-tag">Node.js</div>
+          <div class="skill-tag">Supabase</div>
+          <div class="skill-tag">UI/UX Design</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects">
+      <h2 class="section-title">Featured Projects</h2>
+      <div class="projects-grid" id="projects-list" style="margin-top: 20px;">
+        <!-- Populated Dynamically -->
+        <div class="project-card glass-panel">
+          <div class="project-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop" alt="Project Thumbnail">
+            <div class="project-overlay"></div>
+          </div>
+          <div class="project-info">
+            <div class="project-tags">
+              <span class="project-tag">HTML</span>
+              <span class="project-tag">CSS</span>
+            </div>
+            <h3 class="project-title">Loading...</h3>
+            <p class="project-desc">Connecting to Supabase to fetch projects...</p>
+            <a href="#" class="project-link">View Details &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section id="experience">
+      <h2 class="section-title">My Journey</h2>
+      <div class="experience-timeline" id="experience-list" style="margin-top: 20px;">
+        <!-- Populated Dynamically -->
+        <div class="timeline-item glass-panel">
+          <div class="timeline-dot"></div>
+          <div class="timeline-header">
+            <div>
+              <h3 class="timeline-role">Developer Journey</h3>
+              <span class="timeline-company">Pradeep Portfolio</span>
+            </div>
+            <span class="timeline-period">2026</span>
+          </div>
+          <p class="timeline-desc">Connecting to Supabase database...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+      <div class="contact-card glass-panel">
+        <h2 class="contact-headline">Let's Create Together</h2>
+        <p class="contact-sub">Have a project in mind, or just want to chat? Reach out directly via phone or email, or connect on social media.</p>
+        
+        <div class="contact-details-grid" style="display: flex; justify-content: center; gap: 30px; margin-bottom: 35px; flex-wrap: wrap;">
+          <a href="tel:7904203805" id="contact-phone" class="btn-glass" style="padding: 12px 25px; border-radius: 16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; color: var(--primary-glow);"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            +91 7904203805
+          </a>
+          <a href="mailto:pradeepsankar62@gmail.com" id="contact-email" class="btn-glass" style="padding: 12px 25px; border-radius: 16px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; color: var(--secondary-glow);"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            pradeepsankar62@gmail.com
+          </a>
+        </div>
+
+        <div class="social-links">
+          <a href="#" class="social-btn" id="social-github" target="_blank" aria-label="GitHub">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          </a>
+          <a href="#" class="social-btn" id="social-linkedin" target="_blank" aria-label="LinkedIn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+          </a>
+          <a href="#" class="social-btn" id="social-twitter" target="_blank" aria-label="Twitter">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg>
+          </a>
+          <a href="mailto:pradeepsankar62@gmail.com" class="social-btn" id="social-email" aria-label="Email">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-content" style="padding: 0;">
+      <div class="logo">Pradeep.dev</div>
+      <p class="footer-copy" id="footer-text">&copy; 2026 Pradeep . Handcrafted with Glassmorphism & Supabase.</p>
+    </div>
+  </footer>
+
+  <!-- Admin Sidebar Drawer -->
+  <aside class="admin-drawer" id="admin-drawer">
+    <div class="drawer-header">
+      <div class="drawer-title" id="admin-title">Admin Dashboard</div>
+      <button class="drawer-close" id="btn-drawer-close">&times;</button>
+    </div>
+    
+    <div class="drawer-body">
+      <!-- Authorization Panel -->
+      <div id="auth-panel" class="passcode-wrapper">
+        <p style="font-size: 14px; color: var(--text-secondary);">Please enter your admin password to enable write access to the backend.</p>
+        <div class="form-group">
+          <label for="admin-secret-input">Admin Password</label>
+          <div style="position: relative; display: flex; align-items: center; width: 100%;">
+            <input type="password" id="admin-secret-input" class="form-control" placeholder="Enter password" style="width: 100%; padding-right: 45px;">
+            <button type="button" id="btn-toggle-password" style="position: absolute; right: 10px; background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; outline: none; transition: var(--transition-fast);">
+              <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-auth-submit" style="justify-content: center;">Authorize</button>
+      </div>
+
+      <!-- Editor Panel (Hidden until authorized) -->
+      <div id="editor-panel" style="display: none; flex-direction: column; gap: 20px;">
+        
+        <!-- Section 1: Profile Info -->
+        <div class="drawer-section">
+          <h4 class="drawer-section-title">Profile Details</h4>
+          
+          <div class="form-group">
+            <label for="edit-name">Display Name</label>
+            <input type="text" id="edit-name" class="form-control">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-title">Professional Title</label>
+            <input type="text" id="edit-title" class="form-control">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-avatar">Avatar Image URL</label>
+            <input type="text" id="edit-avatar" class="form-control" placeholder="avatar.jpg">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-bio">Short Biography</label>
+            <textarea id="edit-bio" class="form-control"></textarea>
+          </div>
+        </div>
+
+        <!-- Section 2: Core Skills -->
+        <div class="drawer-section">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 class="drawer-section-title">Skills</h4>
+            <button class="btn-glass" id="btn-add-skill" style="padding: 4px 10px; font-size: 11px; border-radius: 8px;">+ Add</button>
+          </div>
+          <div class="list-editor" id="admin-skills-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Section 3: Projects -->
+        <div class="drawer-section">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 class="drawer-section-title">Projects</h4>
+            <button class="btn-glass" id="btn-add-project" style="padding: 4px 10px; font-size: 11px; border-radius: 8px;">+ Add Project</button>
+          </div>
+          <div class="list-editor" id="admin-projects-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Section 4: Experience -->
+        <div class="drawer-section">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 class="drawer-section-title">Experience</h4>
+            <button class="btn-glass" id="btn-add-experience" style="padding: 4px 10px; font-size: 11px; border-radius: 8px;">+ Add Work</button>
+          </div>
+          <div class="list-editor" id="admin-experience-list">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Section 5: Social Links -->
+        <div class="drawer-section" style="border-bottom: none;">
+          <h4 class="drawer-section-title">Social Connections</h4>
+          
+          <div class="form-group">
+            <label for="edit-github">GitHub Link</label>
+            <input type="text" id="edit-github" class="form-control" placeholder="https://github.com/...">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-linkedin">LinkedIn Link</label>
+            <input type="text" id="edit-linkedin" class="form-control" placeholder="https://linkedin.com/in/...">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-twitter">Twitter Link</label>
+            <input type="text" id="edit-twitter" class="form-control" placeholder="https://twitter.com/...">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-email">Contact Email</label>
+            <input type="email" id="edit-email" class="form-control" placeholder="example@example.com">
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-phone">Contact Phone</label>
+            <input type="text" id="edit-phone" class="form-control" placeholder="+91 7904203805">
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
+    <div class="drawer-footer">
+      <button class="btn-glass" id="btn-admin-logout" style="display: none;">Lock</button>
+      <button class="btn-primary" id="btn-save-all" style="justify-content: center; display: none;">Save Backend</button>
+    </div>
+  </aside>
+
+  <!-- Project Edit Modal -->
+  <div class="admin-modal" id="project-modal">
+    <div class="admin-modal-content glass-panel">
+      <h3 style="font-family: var(--font-title); font-size: 20px; font-weight: 700;">Edit Project</h3>
+      
+      <input type="hidden" id="modal-project-index">
+      
+      <div class="form-group">
+        <label for="modal-project-title">Project Title</label>
+        <input type="text" id="modal-project-title" class="form-control">
+      </div>
+      
+      <div class="form-group">
+        <label for="modal-project-desc">Description</label>
+        <textarea id="modal-project-desc" class="form-control"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="modal-project-image">Image URL</label>
+        <input type="text" id="modal-project-image" class="form-control" placeholder="https://images.unsplash.com/...">
+      </div>
+      
+      <div class="form-group">
+        <label for="modal-project-tags">Tags (comma-separated)</label>
+        <input type="text" id="modal-project-tags" class="form-control" placeholder="React, Node.js, Supabase">
+      </div>
+      
+      <div class="form-group">
+        <label for="modal-project-link">Project Link</label>
+        <input type="text" id="modal-project-link" class="form-control" placeholder="https://...">
+      </div>
+      
+      <div style="display: flex; gap: 15px; margin-top: 10px;">
+        <button class="btn-glass" id="btn-modal-project-cancel" style="flex: 1; justify-content: center;">Cancel</button>
+        <button class="btn-primary" id="btn-modal-project-save" style="flex: 1; justify-content: center;">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Experience Edit Modal -->
+  <div class="admin-modal" id="experience-modal">
+    <div class="admin-modal-content glass-panel">
+      <h3 style="font-family: var(--font-title); font-size: 20px; font-weight: 700;">Edit Experience</h3>
+      
+      <input type="hidden" id="modal-experience-index">
+      
+      <div class="form-group">
+        <label for="modal-experience-role">Role Title</label>
+        <input type="text" id="modal-experience-role" class="form-control" placeholder="e.g. Lead Developer">
+      </div>
+      
+      <div class="form-group">
+        <label for="modal-experience-company">Company Name</label>
+        <input type="text" id="modal-experience-company" class="form-control" placeholder="e.g. Acme Studio">
+      </div>
+      
+      <div class="form-group">
+        <label for="modal-experience-period">Employment Period</label>
+        <input type="text" id="modal-experience-period" class="form-control" placeholder="e.g. 2024 - Present">
+      </div>
+      
+      <div class="form-group">
+        <label for="modal-experience-desc">Description</label>
+        <textarea id="modal-experience-desc" class="form-control" placeholder="Summarize your achievements..."></textarea>
+      </div>
+      
+      <div style="display: flex; gap: 15px; margin-top: 10px;">
+        <button class="btn-glass" id="btn-modal-experience-cancel" style="flex: 1; justify-content: center;">Cancel</button>
+        <button class="btn-primary" id="btn-modal-experience-save" style="flex: 1; justify-content: center;">Apply</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Javascript Logic -->
+  <script src="config.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+</body>
+</html>
