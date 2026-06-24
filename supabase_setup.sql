@@ -34,16 +34,16 @@ CREATE POLICY "Allow public update access" ON public.portfolio
 INSERT INTO public.portfolio (id, name, title, bio, avatar_url, skills, projects, experience, socials)
 VALUES (
     1,
-    'Pradeep Kumar',
+    'Pradeep Sankar',
     'Full Stack Developer & UI/UX Designer',
     'I build high-performance, visually stunning web applications with modern design systems and robust backend integrations.',
-    'avatar.jpg',
+    'C:\Users\PRADEEP\Downloads\IMG_20260528_204530_630.png',
     '["JavaScript", "HTML5 & CSS3", "React", "Node.js", "Supabase", "UI/UX Design"]'::jsonb,
     '[
         {
             "title": "Aesthetic E-Commerce",
             "description": "A glassmorphism-themed online store with real-time checkout.",
-            "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop",
+            "image": "https://images.unsplash.com/photo-1642104704074-907c0698cbd9?w=600&auto=format&fit=crop",
             "tags": ["React", "Supabase", "CSS Modules"],
             "link": "#"
         },
