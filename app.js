@@ -1,11 +1,10 @@
 const CONFIG = window.CONFIG;
-
 // Local Fallback Portfolio Data (Seed)
 const defaultPortfolio = {
-  name: "Pradeep Kumar",
+  name: "Pradeep Sankar",
   title: "Full Stack Developer & UI/UX Designer",
   bio: "I build high-performance, visually stunning web applications with modern design systems and robust backend integrations.",
-  avatar_url: "avatar.jpg",
+  avatar_url: "https://i.ibb.co/208gPZKB/IMG-20260528-204530-630.png",
   skills: ["JavaScript", "HTML5 & CSS3", "React", "Node.js", "Supabase", "UI/UX Design"],
   projects: [
     {
@@ -45,11 +44,9 @@ const defaultPortfolio = {
     phone: "7904203805"
   }
 };
-
 let portfolioData = { ...defaultPortfolio };
 let secretKey = localStorage.getItem('admin_secret') || '';
 let supabaseAnonClient = null;
-
 // DOM Elements
 const elements = {
   // View elements
@@ -125,7 +122,6 @@ const elements = {
   btnModalExpCancel: document.getElementById('btn-modal-experience-cancel'),
   btnModalExpSave: document.getElementById('btn-modal-experience-save'),
 };
-
 document.addEventListener('DOMContentLoaded', () => {
   setupInteractiveGlow();
   setupNavScroll();
@@ -133,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAdminEvents();
   setupScrollReveal();
 });
-
 // 1. Mouse Glow Effect (Glowmorphism UX)
 function setupInteractiveGlow() {
   const glow = document.getElementById('cursor-glow');
@@ -147,7 +142,6 @@ function setupInteractiveGlow() {
     glow.style.opacity = '0';
   });
 }
-
 // 1.1 Scroll Reveal Observer (UX Animation)
 function setupScrollReveal() {
   const observer = new IntersectionObserver((entries) => {
@@ -166,7 +160,6 @@ function setupScrollReveal() {
     });
   }, 100);
 }
-
 // 2. Navigation Highlighting & Auto scroll
 function setupNavScroll() {
   const sections = document.querySelectorAll('section');
@@ -180,7 +173,6 @@ function setupNavScroll() {
         current = section.getAttribute('id');
       }
     });
-
     elements.navLinks.forEach(a => {
       a.classList.remove('active');
       if (a.getAttribute('href').slice(1) === current) {
@@ -193,7 +185,6 @@ function setupNavScroll() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
-
 // 3. Supabase Database Integrations
 async function initSupabase() {
   try {
@@ -210,7 +201,6 @@ async function initSupabase() {
     renderPortfolio();
   }
 }
-
 async function fetchPortfolioData() {
   if (!supabaseAnonClient) return;
   
@@ -236,11 +226,10 @@ async function fetchPortfolioData() {
     renderPortfolio();
   }
 }
-
 // 4. Render UI Elements Dynamically
 function renderPortfolio() {
   // Main Texts
-  elements.heroName.textContent = portfolioData.name || 'Pradeep Kumar';
+  elements.heroName.textContent = portfolioData.name || 'Pradeep Sankar';
   elements.heroTitle.textContent = portfolioData.title || '';
   elements.heroBio.textContent = portfolioData.bio || '';
   elements.aboutBio.textContent = portfolioData.bio || '';
@@ -278,7 +267,6 @@ function renderPortfolio() {
       const linkHtml = project.link && project.link !== '#' ? 
         `<a href="${project.link}" target="_blank" class="project-link">Launch Project &rarr;</a>` : 
         `<span style="color: var(--text-muted); font-size: 13px;">Personal Concept</span>`;
-
       card.innerHTML = `
         <div class="project-img-wrapper">
           <img src="${img}" alt="${project.title}" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop'">
@@ -321,7 +309,6 @@ function renderPortfolio() {
       elements.experienceList.appendChild(item);
     });
   }
-
   // Social Links & Contact Details
   const socials = portfolioData.socials || {};
   
@@ -333,7 +320,6 @@ function renderPortfolio() {
   const phone = (socials.phone && socials.phone.trim() !== '') 
     ? socials.phone 
     : '7904203805';
-
   elements.socialGithub.href = socials.github || '#';
   elements.socialLinkedin.href = socials.linkedin || '#';
   elements.socialTwitter.href = socials.twitter || '#';
@@ -367,7 +353,6 @@ function renderPortfolio() {
     });
   }, 100);
 }
-
 // 5. Admin Panel Event Handlers
 function setupAdminEvents() {
   // Drawer Open / Close
@@ -381,11 +366,9 @@ function setupAdminEvents() {
       }
     }
   });
-
   elements.btnDrawerClose.addEventListener('click', () => {
     elements.adminDrawer.classList.remove('open');
   });
-
   // Authorization Submission
   elements.btnAuthSubmit.addEventListener('click', () => {
     const password = elements.adminSecretInput.value.trim();
@@ -420,7 +403,6 @@ function setupAdminEvents() {
       }
     });
   }
-
   // Logout / Lock
   elements.btnAdminLogout.addEventListener('click', () => {
     secretKey = '';
@@ -428,24 +410,19 @@ function setupAdminEvents() {
     document.body.classList.remove('admin-mode');
     showAuthScreen();
   });
-
   // Save Everything to Database
   elements.btnSaveAll.addEventListener('click', saveAllToBackend);
-
   // Sub-items adding
   elements.btnAddSkill.addEventListener('click', addSkillTag);
   elements.btnAddProject.addEventListener('click', () => openProjectModal(-1));
   elements.btnAddExperience.addEventListener('click', () => openExperienceModal(-1));
-
   // Modal cancellations
   elements.btnModalProjCancel.addEventListener('click', () => elements.projectModal.classList.remove('open'));
   elements.btnModalExpCancel.addEventListener('click', () => elements.experienceModal.classList.remove('open'));
-
   // Modal saves
   elements.btnModalProjSave.addEventListener('click', saveProjectModal);
   elements.btnModalExpSave.addEventListener('click', saveExperienceModal);
 }
-
 // Check password validity locally
 function testAdminPassword(password) {
   if (password !== 'pradeep@2007') {
@@ -457,7 +434,6 @@ function testAdminPassword(password) {
   localStorage.setItem('admin_secret', secretKey);
   showEditorScreen();
 }
-
 function showAuthScreen() {
   elements.authPanel.style.display = 'flex';
   elements.editorPanel.style.display = 'none';
@@ -466,7 +442,6 @@ function showAuthScreen() {
   document.body.classList.remove('admin-mode');
   elements.adminBadge.style.display = 'none';
 }
-
 function showEditorScreen() {
   elements.authPanel.style.display = 'none';
   elements.editorPanel.style.display = 'flex';
@@ -477,7 +452,6 @@ function showEditorScreen() {
   
   populateAdminInputs();
 }
-
 // Prefill form controls with current data
 function populateAdminInputs() {
   elements.editName.value = portfolioData.name || '';
@@ -505,7 +479,6 @@ function populateAdminInputs() {
   renderAdminProjects();
   renderAdminExperience();
 }
-
 // Admin list renderers
 function renderAdminSkills() {
   elements.adminSkillsList.innerHTML = '';
@@ -526,7 +499,6 @@ function renderAdminSkills() {
     elements.adminSkillsList.appendChild(item);
   });
 }
-
 function renderAdminProjects() {
   elements.adminProjectsList.innerHTML = '';
   const projects = Array.isArray(portfolioData.projects) ? portfolioData.projects : [];
@@ -548,7 +520,6 @@ function renderAdminProjects() {
     elements.adminProjectsList.appendChild(item);
   });
 }
-
 function renderAdminExperience() {
   elements.adminExperienceList.innerHTML = '';
   const experiences = Array.isArray(portfolioData.experience) ? portfolioData.experience : [];
@@ -570,7 +541,6 @@ function renderAdminExperience() {
     elements.adminExperienceList.appendChild(item);
   });
 }
-
 // Add/Delete Skill
 function addSkillTag() {
   const skill = prompt("Enter a new skill (e.g. TypeScript, GraphQL):");
@@ -580,7 +550,6 @@ function addSkillTag() {
     renderAdminSkills();
   }
 }
-
 // Project Modal Logic
 function openProjectModal(index) {
   elements.modalProjIndex.value = index;
@@ -600,7 +569,6 @@ function openProjectModal(index) {
   }
   elements.projectModal.classList.add('open');
 }
-
 function saveProjectModal() {
   const index = parseInt(elements.modalProjIndex.value);
   const title = elements.modalProjTitle.value.trim();
@@ -627,7 +595,6 @@ function saveProjectModal() {
   renderAdminProjects();
   elements.projectModal.classList.remove('open');
 }
-
 // Experience Modal Logic
 function openExperienceModal(index) {
   elements.modalExpIndex.value = index;
@@ -645,7 +612,6 @@ function openExperienceModal(index) {
   }
   elements.experienceModal.classList.add('open');
 }
-
 function saveExperienceModal() {
   const index = parseInt(elements.modalExpIndex.value);
   const role = elements.modalExpRole.value.trim();
@@ -671,7 +637,6 @@ function saveExperienceModal() {
   renderAdminExperience();
   elements.experienceModal.classList.remove('open');
 }
-
 // 6. Push Changes to Supabase
 async function saveAllToBackend() {
   try {
@@ -686,7 +651,7 @@ async function saveAllToBackend() {
     // Assemble portfolio updates
     const updatedData = {
       id: 1,
-      name: elements.editName.value.trim() || 'Pradeep Kumar',
+      name: elements.editName.value.trim() || 'Pradeep Sankar',
       title: elements.editTitle.value.trim(),
       avatar_url: elements.editAvatar.value.trim(),
       bio: elements.editBio.value.trim(),
