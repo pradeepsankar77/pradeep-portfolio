@@ -1,4 +1,6 @@
 const CONFIG = window.CONFIG;
+
+// Local Fallback Portfolio Data (Seed)
 const defaultPortfolio = {
   name: "Pradeep Sankar",
   title: "Full Stack Developer & UI/UX Designer",
@@ -44,9 +46,11 @@ const defaultPortfolio = {
     certificates: []
   }
 };
+
 let portfolioData = { ...defaultPortfolio };
 let secretKey = localStorage.getItem('admin_secret') || '';
 let supabaseAnonClient = null;
+
 // DOM Elements
 const elements = {
   // View elements
@@ -129,6 +133,7 @@ const elements = {
   btnTriggerUpload: document.getElementById('btn-trigger-upload'),
   uploadStatus: document.getElementById('upload-status'),
 };
+
 document.addEventListener('DOMContentLoaded', () => {
   setupInteractiveGlow();
   setupNavScroll();
@@ -136,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAdminEvents();
   setupScrollReveal();
 });
+
 // 1. Mouse Glow Effect (Glowmorphism UX)
 function setupInteractiveGlow() {
   const glow = document.getElementById('cursor-glow');
@@ -149,6 +155,7 @@ function setupInteractiveGlow() {
     glow.style.opacity = '0';
   });
 }
+
 // 1.1 Scroll Reveal Observer (UX Animation)
 function setupScrollReveal() {
   const observer = new IntersectionObserver((entries) => {
@@ -167,6 +174,7 @@ function setupScrollReveal() {
     });
   }, 100);
 }
+
 // 2. Navigation Highlighting & Auto scroll
 function setupNavScroll() {
   const sections = document.querySelectorAll('section');
@@ -180,6 +188,7 @@ function setupNavScroll() {
         current = section.getAttribute('id');
       }
     });
+
     elements.navLinks.forEach(a => {
       a.classList.remove('active');
       if (a.getAttribute('href').slice(1) === current) {
@@ -192,6 +201,7 @@ function setupNavScroll() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 }
+
 // 3. Supabase Database Integrations
 async function initSupabase() {
   try {
@@ -208,6 +218,7 @@ async function initSupabase() {
     renderPortfolio();
   }
 }
+
 async function fetchPortfolioData() {
   if (!supabaseAnonClient) return;
   
@@ -233,6 +244,7 @@ async function fetchPortfolioData() {
     renderPortfolio();
   }
 }
+
 // 4. Render UI Elements Dynamically
 function renderPortfolio() {
   // Main Texts
@@ -274,6 +286,7 @@ function renderPortfolio() {
       const linkHtml = project.link && project.link !== '#' ? 
         `<a href="${project.link}" target="_blank" class="project-link">Launch Project &rarr;</a>` : 
         `<span style="color: var(--text-muted); font-size: 13px;">Personal Concept</span>`;
+
       card.innerHTML = `
         <div class="project-img-wrapper">
           <img src="${img}" alt="${project.title}" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop'">
@@ -316,6 +329,7 @@ function renderPortfolio() {
       elements.experienceList.appendChild(item);
     });
   }
+
   // Social Links & Contact Details
   const socials = portfolioData.socials || {};
   
@@ -327,6 +341,7 @@ function renderPortfolio() {
   const phone = (socials.phone && socials.phone.trim() !== '') 
     ? socials.phone 
     : '7904203805';
+
   elements.socialGithub.href = socials.github || '#';
   elements.socialLinkedin.href = socials.linkedin || '#';
   elements.socialTwitter.href = socials.twitter || '#';
@@ -378,9 +393,11 @@ function renderPortfolio() {
         const iconSvg = isPdf 
           ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`
           : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+
         const deleteButtonHtml = secretKey 
           ? `<button class="btn-icon btn-icon-delete" style="font-size: 20px; color: var(--text-muted); margin-left: 8px; line-height: 1;" onclick="window.deleteCertificate(${idx})">&times;</button>`
           : '';
+
         const card = document.createElement('div');
         card.className = 'project-card glass-panel scroll-reveal revealed';
         card.style.padding = '20px';
@@ -409,6 +426,7 @@ function renderPortfolio() {
     }
   }
 }
+
 // 5. Admin Panel Event Handlers
 function setupAdminEvents() {
   // Drawer Open / Close
@@ -422,9 +440,11 @@ function setupAdminEvents() {
       }
     }
   });
+
   elements.btnDrawerClose.addEventListener('click', () => {
     elements.adminDrawer.classList.remove('open');
   });
+
   // Authorization Submission
   elements.btnAuthSubmit.addEventListener('click', () => {
     const password = elements.adminSecretInput.value.trim();
@@ -459,6 +479,7 @@ function setupAdminEvents() {
       }
     });
   }
+
   // Logout / Lock
   elements.btnAdminLogout.addEventListener('click', () => {
     secretKey = '';
@@ -466,15 +487,19 @@ function setupAdminEvents() {
     document.body.classList.remove('admin-mode');
     showAuthScreen();
   });
+
   // Save Everything to Database
   elements.btnSaveAll.addEventListener('click', saveAllToBackend);
+
   // Sub-items adding
   elements.btnAddSkill.addEventListener('click', addSkillTag);
   elements.btnAddProject.addEventListener('click', () => openProjectModal(-1));
   elements.btnAddExperience.addEventListener('click', () => openExperienceModal(-1));
+
   // Modal cancellations
   elements.btnModalProjCancel.addEventListener('click', () => elements.projectModal.classList.remove('open'));
   elements.btnModalExpCancel.addEventListener('click', () => elements.experienceModal.classList.remove('open'));
+
   // Modal saves
   elements.btnModalProjSave.addEventListener('click', saveProjectModal);
   elements.btnModalExpSave.addEventListener('click', saveExperienceModal);
@@ -487,6 +512,7 @@ function setupAdminEvents() {
     elements.certFileInput.addEventListener('change', uploadCertificate);
   }
 }
+
 // Check password validity locally
 function testAdminPassword(password) {
   if (password !== 'pradeep@2007') {
@@ -498,6 +524,7 @@ function testAdminPassword(password) {
   localStorage.setItem('admin_secret', secretKey);
   showEditorScreen();
 }
+
 function showAuthScreen() {
   elements.authPanel.style.display = 'flex';
   elements.editorPanel.style.display = 'none';
@@ -509,6 +536,7 @@ function showAuthScreen() {
     elements.certUploadPanel.style.display = 'none';
   }
 }
+
 function showEditorScreen() {
   elements.authPanel.style.display = 'none';
   elements.editorPanel.style.display = 'flex';
@@ -522,6 +550,7 @@ function showEditorScreen() {
   
   populateAdminInputs();
 }
+
 // Prefill form controls with current data
 function populateAdminInputs() {
   elements.editName.value = portfolioData.name || '';
@@ -549,6 +578,7 @@ function populateAdminInputs() {
   renderAdminProjects();
   renderAdminExperience();
 }
+
 // Admin list renderers
 function renderAdminSkills() {
   elements.adminSkillsList.innerHTML = '';
@@ -569,6 +599,7 @@ function renderAdminSkills() {
     elements.adminSkillsList.appendChild(item);
   });
 }
+
 function renderAdminProjects() {
   elements.adminProjectsList.innerHTML = '';
   const projects = Array.isArray(portfolioData.projects) ? portfolioData.projects : [];
@@ -590,6 +621,7 @@ function renderAdminProjects() {
     elements.adminProjectsList.appendChild(item);
   });
 }
+
 function renderAdminExperience() {
   elements.adminExperienceList.innerHTML = '';
   const experiences = Array.isArray(portfolioData.experience) ? portfolioData.experience : [];
@@ -611,6 +643,7 @@ function renderAdminExperience() {
     elements.adminExperienceList.appendChild(item);
   });
 }
+
 // Add/Delete Skill
 function addSkillTag() {
   const skill = prompt("Enter a new skill (e.g. TypeScript, GraphQL):");
@@ -620,6 +653,7 @@ function addSkillTag() {
     renderAdminSkills();
   }
 }
+
 // Project Modal Logic
 function openProjectModal(index) {
   elements.modalProjIndex.value = index;
@@ -639,6 +673,7 @@ function openProjectModal(index) {
   }
   elements.projectModal.classList.add('open');
 }
+
 function saveProjectModal() {
   const index = parseInt(elements.modalProjIndex.value);
   const title = elements.modalProjTitle.value.trim();
@@ -665,6 +700,7 @@ function saveProjectModal() {
   renderAdminProjects();
   elements.projectModal.classList.remove('open');
 }
+
 // Experience Modal Logic
 function openExperienceModal(index) {
   elements.modalExpIndex.value = index;
@@ -682,6 +718,7 @@ function openExperienceModal(index) {
   }
   elements.experienceModal.classList.add('open');
 }
+
 function saveExperienceModal() {
   const index = parseInt(elements.modalExpIndex.value);
   const role = elements.modalExpRole.value.trim();
@@ -707,6 +744,7 @@ function saveExperienceModal() {
   renderAdminExperience();
   elements.experienceModal.classList.remove('open');
 }
+
 // 6. Push Changes to Supabase
 async function saveAllToBackend() {
   try {
@@ -767,6 +805,7 @@ async function saveAllToBackend() {
     elements.btnSaveAll.textContent = 'Save Backend';
   }
 }
+
 // 7. Supabase Storage Certificate Upload & Delete helpers
 async function uploadCertificate(e) {
   const file = e.target.files[0];
@@ -847,6 +886,7 @@ async function uploadCertificate(e) {
     elements.certFileInput.value = '';
   }
 }
+
 async function deleteCertificate(idx) {
   if (!confirm('Are you sure you want to delete this certificate?')) return;
   
@@ -869,6 +909,6 @@ async function deleteCertificate(idx) {
     alert('Failed to delete certificate: ' + err.message);
   }
 }
+
 // Bind to window for inline onclick triggers
 window.deleteCertificate = deleteCertificate;
-
