@@ -23,15 +23,15 @@
     });
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pradeep | Portfolio</title>
+  <title>Pradeep Sankar | Portfolio</title>
   <link rel="stylesheet" href="style.css">
   <meta name="description" content="Explore my premium Glowmorphic and Glassmorphic portfolio featuring full stack development, interactive animations, and live Supabase sync.">
   
   <!-- Favicon / Brand Logo -->
-  <link rel="icon" type="image/png" href="https://ibb.co/vCsZmXz8">
+  <link rel="icon" type="image/png" href="IMG_20260528_204530_630.png">
   
   <!-- Search Engine / SEO Metadata (Open Graph) -->
-  <meta property="og:title" content="Pradeep | Portfolio">
+  <meta property="og:title" content="Pradeep Sankar | Portfolio">
   <meta property="og:description" content="Explore my premium Glowmorphic and Glassmorphic portfolio featuring full stack development, interactive animations, and live Supabase sync.">
   <meta property="og:image" content="https://i.ibb.co/208gPZKB/IMG-20260528-204530-630.png">
   <meta property="og:image:type" content="image/png">
@@ -44,11 +44,13 @@
   <meta name="twitter:title" content="Pradeep Sankar">
   <meta name="twitter:description" content="Explore my premium Glowmorphic and Glassmorphic portfolio featuring full stack development, interactive animations, and live Supabase sync.">
   <meta name="twitter:image" content="https://i.ibb.co/208gPZKB/IMG-20260528-204530-630.png">
+
   <link rel="stylesheet" href="style.css">
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
   <!-- Ambient Glow Background -->
   <div class="glow-wrapper">
     <div class="glow-blob blob-1"></div>
@@ -57,6 +59,7 @@
   </div>
   <div class="grid-overlay"></div>
   <div id="cursor-glow"></div>
+
   <!-- Header -->
   <header>
     <nav class="nav-container glass-panel">
@@ -77,6 +80,7 @@
       </div>
     </nav>
   </header>
+
   <!-- Main Container -->
   <main class="container">
     
@@ -99,11 +103,12 @@
         <div class="hero-visual">
           <div class="avatar-glow"></div>
           <div class="avatar-glass">
-            <img src="https://i.ibb.co/208gPZKB/IMG-20260528-204530-630.png" alt="Pradeep Sankar" id="hero-avatar" onerror="this.src='https://ibb.co/vCsZmXz8'">
+            <img src="https://i.ibb.co/208gPZKB/IMG-20260528-204530-630.png" alt="Pradeep Sankar" id="hero-avatar" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop'">
           </div>
         </div>
       </div>
     </section>
+
     <!-- About & Skills Section -->
     <section id="about">
       <h2 class="section-title">About Me</h2>
@@ -123,6 +128,7 @@
         </div>
       </div>
     </section>
+
     <!-- Projects Section -->
     <section id="projects">
       <h2 class="section-title">Featured Projects</h2>
@@ -145,6 +151,7 @@
         </div>
       </div>
     </section>
+
     <!-- Experience Section -->
     <section id="experience">
       <h2 class="section-title">My Journey</h2>
@@ -163,6 +170,28 @@
         </div>
       </div>
     </section>
+
+    <!-- Certificates Section -->
+    <section id="certificates">
+      <h2 class="section-title">Certificates</h2>
+      <div class="projects-grid" id="certificates-list" style="margin-top: 20px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+        <!-- Populated Dynamically -->
+        <div class="project-card glass-panel" style="padding: 20px; text-align: center;">
+          <p style="color: var(--text-secondary); font-size: 14px;">No certificates uploaded yet.</p>
+        </div>
+      </div>
+      
+      <!-- Upload panel (Only displayed when admin mode is unlocked) -->
+      <div id="cert-upload-panel" style="display: none; margin-top: 25px; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <input type="file" id="cert-file-input" accept="application/pdf, image/*" style="display: none;">
+        <button class="btn-primary" id="btn-trigger-upload">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Upload Certificate (PDF / Image)
+        </button>
+        <span id="upload-status" style="font-size: 13px; color: var(--text-muted); font-weight: 500;"></span>
+      </div>
+    </section>
+
     <!-- Contact Section -->
     <section id="contact">
       <div class="contact-card glass-panel">
@@ -179,6 +208,7 @@
             pradeepsankar62@gmail.com
           </a>
         </div>
+
         <div class="social-links">
           <a href="#" class="social-btn" id="social-github" target="_blank" aria-label="GitHub">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
@@ -195,7 +225,9 @@
         </div>
       </div>
     </section>
+
   </main>
+
   <!-- Footer -->
   <footer>
     <div class="container footer-content" style="padding: 0;">
@@ -203,6 +235,7 @@
       <p class="footer-copy" id="footer-text">&copy; 2026 Pradeep Sankar. Handcrafted with Glassmorphism & Supabase.</p>
     </div>
   </footer>
+
   <!-- Admin Sidebar Drawer -->
   <aside class="admin-drawer" id="admin-drawer">
     <div class="drawer-header">
@@ -228,6 +261,7 @@
         </div>
         <button class="btn-primary" id="btn-auth-submit" style="justify-content: center;">Authorize</button>
       </div>
+
       <!-- Editor Panel (Hidden until authorized) -->
       <div id="editor-panel" style="display: none; flex-direction: column; gap: 20px;">
         
@@ -255,6 +289,7 @@
             <textarea id="edit-bio" class="form-control"></textarea>
           </div>
         </div>
+
         <!-- Section 2: Core Skills -->
         <div class="drawer-section">
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -265,6 +300,7 @@
             <!-- Populated dynamically -->
           </div>
         </div>
+
         <!-- Section 3: Projects -->
         <div class="drawer-section">
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -275,6 +311,7 @@
             <!-- Populated dynamically -->
           </div>
         </div>
+
         <!-- Section 4: Experience -->
         <div class="drawer-section">
           <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -285,6 +322,7 @@
             <!-- Populated dynamically -->
           </div>
         </div>
+
         <!-- Section 5: Social Links -->
         <div class="drawer-section" style="border-bottom: none;">
           <h4 class="drawer-section-title">Social Connections</h4>
@@ -314,6 +352,7 @@
             <input type="text" id="edit-phone" class="form-control" placeholder="+91 7904203805">
           </div>
         </div>
+
       </div>
     </div>
     
@@ -322,6 +361,7 @@
       <button class="btn-primary" id="btn-save-all" style="justify-content: center; display: none;">Save Backend</button>
     </div>
   </aside>
+
   <!-- Project Edit Modal -->
   <div class="admin-modal" id="project-modal">
     <div class="admin-modal-content glass-panel">
@@ -360,6 +400,7 @@
       </div>
     </div>
   </div>
+
   <!-- Experience Edit Modal -->
   <div class="admin-modal" id="experience-modal">
     <div class="admin-modal-content glass-panel">
@@ -393,6 +434,7 @@
       </div>
     </div>
   </div>
+
   <!-- Javascript Logic -->
   <script src="config.js?v=2"></script>
   <script src="app.js?v=2"></script>
