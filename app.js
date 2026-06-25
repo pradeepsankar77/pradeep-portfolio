@@ -1,10 +1,4 @@
-
-
-
-
-
 const CONFIG = window.CONFIG;
-// Local Fallback Portfolio Data (Seed)
 const defaultPortfolio = {
   name: "Pradeep Sankar",
   title: "Full Stack Developer & UI/UX Designer",
