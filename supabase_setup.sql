@@ -37,7 +37,7 @@ VALUES (
         {
             "title": "Aesthetic E-Commerce",
             "description": "A glassmorphism-themed online store with real-time checkout.",
-            "image": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop",
+            "image": "https://ibb.co/3YFbWtnJ",
             "tags": ["React", "Supabase", "CSS Modules"],
             "link": "#"
         },
