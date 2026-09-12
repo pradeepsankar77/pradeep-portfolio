@@ -1,914 +1,1312 @@
-const CONFIG = window.CONFIG;
+/**
+ * Developer Workstation Portfolio Engine
+ * Client Architecture, 3D Coverflow, Admin Workstation CMS & Supabase Cloud Sync
+ * Author: Pradeep Sankar
+ */
 
-// Local Fallback Portfolio Data (Seed)
-const defaultPortfolio = {
-  name: "Pradeep Sankar",
-  title: "Full Stack Developer & UI/UX Designer",
-  bio: "I build high-performance, visually stunning web applications with modern design systems and robust backend integrations.",
-  avatar_url: "https://i.ibb.co/208gPZKB/IMG-20260528-204530-630.png",
-  skills: ["JavaScript", "HTML5 & CSS3", "React", "Node.js", "Supabase", "UI/UX Design"],
-  projects: [
+(function () {
+  'use strict';
+
+  const CONFIG = window.CONFIG || {};
+
+  // Curated Fallback Projects (Real engineering data - renders instantly)
+  const curatedProjects = [
     {
-      title: "Aesthetic E-Commerce",
-      description: "A glassmorphism-themed online store with real-time checkout.",
-      image: "https://https://ibb.co/3YFbWtnJ",
-      tags: ["React", "Supabase", "CSS Modules"],
-      link: "#"
+      title: "Alpaca AI Trading Agent",
+      description: "Automated algorithmic trading system leveraging Alpaca API, real-time market data streaming via WebSockets, and risk-management execution models.",
+      image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&auto=format&fit=crop",
+      tags: ["Node.js", "Express", "Alpaca API", "WebSockets"],
+      demo: "https://github.com/pradeepsankar77/alpaca-ai-trading-agent",
+      repo: "https://github.com/pradeepsankar77/alpaca-ai-trading-agent"
     },
     {
-      title: "Crypto Dashboard",
-      description: "Real-time cryptocurrency analytics tool featuring high-end charts.",
-      image: "https://images.unsplash.com/photo-1642104704074-907c0698cbd9?w=600&auto=format&fit=crop",
-      tags: ["Vanilla JS", "Chart.js", "API"],
-      link: "#"
-    }
-  ],
-  experience: [
-    {
-      role: "Lead Frontend Developer",
-      company: "DesignSphere Studio",
-      period: "2024 - Present",
-      description: "Architected premium web applications using modern styling systems and oversaw frontend design QA."
+      title: "AgriLink Smart Cloud Platform",
+      description: "Agricultural technology cloud platform featuring IoT sensor synchronization, market pricing analytics, and real-time farmer community exchange.",
+      image: "https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=800&auto=format&fit=crop",
+      tags: ["React", "Supabase", "PostgreSQL", "Tailwind"],
+      demo: "https://github.com/pradeepsankar77/Agrilink",
+      repo: "https://github.com/pradeepsankar77/Agrilink"
     },
     {
-      role: "Full Stack Engineer",
-      company: "CloudSoft Solutions",
-      period: "2022 - 2024",
-      description: "Integrated database systems, implemented serverless functions, and crafted responsive user interfaces."
+      title: "Cinematic 3D Developer Workstation",
+      description: "Interactive glassmorphic developer portfolio with real 3D perspective depth, WebGL shaders, Three.js viewports, and restrained micro-motion.",
+      image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop",
+      tags: ["Three.js", "WebGL", "CSS 3D", "Vanilla JS"],
+      demo: "https://pradeepsankar77.github.io/pradeep-portfolio/",
+      repo: "https://github.com/pradeepsankar77/pradeep-portfolio"
+    },
+    {
+      title: "Enterprise Auth & Data Sync Gateway",
+      description: "Scalable backend microservice implementing Row-Level Security, JWT authentication, and bi-directional realtime PostgreSQL subscriptions.",
+      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop",
+      tags: ["Node.js", "PostgreSQL", "Supabase", "REST API"],
+      demo: "https://github.com/pradeepsankar77",
+      repo: "https://github.com/pradeepsankar77"
     }
-  ],
-  socials: {
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
-    twitter: "https://twitter.com",
-    email: "pradeepsankar62@gmail.com",
-    phone: "7904203805",
-    certificates: []
-  }
-};
+  ];
 
-let portfolioData = { ...defaultPortfolio };
-let secretKey = localStorage.getItem('admin_secret') || '';
-let supabaseAnonClient = null;
+  const curatedExperience = [
+    {
+      role: "Full Stack Software Engineer",
+      company: "Independent Projects & Workstation",
+      period: "2024 — Present",
+      description: "Architected automated trading microservices with Alpaca API, agricultural IoT data pipelines with AgriLink, and 3D WebGL web applications with React, Supabase, and Node.js."
+    },
+    {
+      role: "Frontend & Web Systems Developer",
+      company: "Engineering Academia & Innovation Labs",
+      period: "2022 — 2024",
+      description: "Engineered responsive full stack applications, structured PostgreSQL schemas with Row-Level Security, and crafted accessible user interfaces with glassmorphic design systems."
+    }
+  ];
 
-// DOM Elements
-const elements = {
-  // View elements
-  heroName: document.getElementById('hero-name'),
-  heroTitle: document.getElementById('hero-title-text'),
-  heroBio: document.getElementById('hero-bio-text'),
-  heroAvatar: document.getElementById('hero-avatar'),
-  aboutBio: document.getElementById('about-bio-text'),
-  skillsList: document.getElementById('skills-list'),
-  projectsList: document.getElementById('projects-list'),
-  experienceList: document.getElementById('experience-list'),
-  socialGithub: document.getElementById('social-github'),
-  socialLinkedin: document.getElementById('social-linkedin'),
-  socialTwitter: document.getElementById('social-twitter'),
-  socialEmail: document.getElementById('social-email'),
-  contactPhone: document.getElementById('contact-phone'),
-  contactEmail: document.getElementById('contact-email'),
-  
-  // Navigation
-  navLinks: document.querySelectorAll('.nav-links a'),
-  logo: document.getElementById('nav-logo'),
-  
-  // Admin Drawer
-  btnAdminToggle: document.getElementById('btn-admin-toggle'),
-  adminBadge: document.getElementById('admin-badge'),
-  adminDrawer: document.getElementById('admin-drawer'),
-  btnDrawerClose: document.getElementById('btn-drawer-close'),
-  authPanel: document.getElementById('auth-panel'),
-  editorPanel: document.getElementById('editor-panel'),
-  adminSecretInput: document.getElementById('admin-secret-input'),
-  btnAuthSubmit: document.getElementById('btn-auth-submit'),
-  btnAdminLogout: document.getElementById('btn-admin-logout'),
-  btnSaveAll: document.getElementById('btn-save-all'),
-  
-  // Profile Editor Inputs
-  editName: document.getElementById('edit-name'),
-  editTitle: document.getElementById('edit-title'),
-  editAvatar: document.getElementById('edit-avatar'),
-  editBio: document.getElementById('edit-bio'),
-  editGithub: document.getElementById('edit-github'),
-  editLinkedin: document.getElementById('edit-linkedin'),
-  editTwitter: document.getElementById('edit-twitter'),
-  editEmail: document.getElementById('edit-email'),
-  editPhone: document.getElementById('edit-phone'),
-  
-  // List Editor containers
-  adminSkillsList: document.getElementById('admin-skills-list'),
-  adminProjectsList: document.getElementById('admin-projects-list'),
-  adminExperienceList: document.getElementById('admin-experience-list'),
-  
-  // Add item buttons
-  btnAddSkill: document.getElementById('btn-add-skill'),
-  btnAddProject: document.getElementById('btn-add-project'),
-  btnAddExperience: document.getElementById('btn-add-experience'),
-  
-  // Modals
-  projectModal: document.getElementById('project-modal'),
-  modalProjIndex: document.getElementById('modal-project-index'),
-  modalProjTitle: document.getElementById('modal-project-title'),
-  modalProjDesc: document.getElementById('modal-project-desc'),
-  modalProjImage: document.getElementById('modal-project-image'),
-  modalProjTags: document.getElementById('modal-project-tags'),
-  modalProjLink: document.getElementById('modal-project-link'),
-  btnModalProjCancel: document.getElementById('btn-modal-project-cancel'),
-  btnModalProjSave: document.getElementById('btn-modal-project-save'),
-  
-  experienceModal: document.getElementById('experience-modal'),
-  modalExpIndex: document.getElementById('modal-experience-index'),
-  modalExpRole: document.getElementById('modal-experience-role'),
-  modalExpCompany: document.getElementById('modal-experience-company'),
-  modalExpPeriod: document.getElementById('modal-experience-period'),
-  modalExpDesc: document.getElementById('modal-experience-desc'),
-  btnModalExpCancel: document.getElementById('btn-modal-experience-cancel'),
-  btnModalExpSave: document.getElementById('btn-modal-experience-save'),
-  
-  // Certificates View & Upload elements
-  certificatesList: document.getElementById('certificates-list'),
-  certUploadPanel: document.getElementById('cert-upload-panel'),
-  certFileInput: document.getElementById('cert-file-input'),
-  btnTriggerUpload: document.getElementById('btn-trigger-upload'),
-  uploadStatus: document.getElementById('upload-status'),
-};
+  const defaultSkills = [
+    { name: "React", level: "SPA Architecture", color: "cyan" },
+    { name: "Node.js", level: "API Services", color: "green" },
+    { name: "Supabase", level: "PostgreSQL / Auth", color: "green" },
+    { name: "JavaScript ES6+", level: "Core Logic", color: "blue" },
+    { name: "HTML5 & CSS3", level: "Semantic UI", color: "cyan" },
+    { name: "Three.js", level: "WebGL Viewports", color: "blue" },
+    { name: "Glassmorphism", level: "Design Language", color: "cyan" },
+    { name: "RESTful APIs", level: "System Design", color: "green" }
+  ];
 
-document.addEventListener('DOMContentLoaded', () => {
-  setupInteractiveGlow();
-  setupNavScroll();
-  initSupabase();
-  setupAdminEvents();
-  setupScrollReveal();
-});
+  // Primary State
+  let portfolioData = {
+    name: "Pradeep Sankar",
+    title: "Full Stack & 3D Creative Engineer",
+    bio: "I craft high-performance web applications, scalable backend systems, and interactive interfaces with modern glassmorphism, responsive systems, and real-time data sync.",
+    avatar_url: "IMG_20260528_204530_630.png",
+    skills: [...defaultSkills],
+    projects: [...curatedProjects],
+    experience: [...curatedExperience],
+    socials: {
+      github: "https://github.com/pradeepsankar77",
+      linkedin: "https://linkedin.com",
+      email: "pradeepsankar62@gmail.com",
+      phone: "+91 7904203805"
+    }
+  };
 
-// 1. Mouse Glow Effect (Glowmorphism UX)
-function setupInteractiveGlow() {
-  const glow = document.getElementById('cursor-glow');
-  window.addEventListener('mousemove', (e) => {
-    glow.style.left = e.clientX + 'px';
-    glow.style.top = e.clientY + 'px';
-    glow.style.opacity = '1';
-  });
-  
-  window.addEventListener('mouseleave', () => {
-    glow.style.opacity = '0';
-  });
-}
-
-// 1.1 Scroll Reveal Observer (UX Animation)
-function setupScrollReveal() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('revealed');
-      }
-    });
-  }, { threshold: 0.05 });
-  
-  // Apply scroll reveal class and observe individual cards and items only
-  setTimeout(() => {
-    document.querySelectorAll('.project-card, .timeline-item').forEach(el => {
-      el.classList.add('scroll-reveal');
-      observer.observe(el);
-    });
-  }, 100);
-}
-
-// 2. Navigation Highlighting & Auto scroll
-function setupNavScroll() {
-  const sections = document.querySelectorAll('section');
-  
-  window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
-      const sectionTop = section.offsetTop;
-      const sectionHeight = section.clientHeight;
-      if (pageYOffset >= (sectionTop - 200)) {
-        current = section.getAttribute('id');
-      }
-    });
-
-    elements.navLinks.forEach(a => {
-      a.classList.remove('active');
-      if (a.getAttribute('href').slice(1) === current) {
-        a.classList.add('active');
-      }
-    });
-  });
-  
-  elements.logo.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-}
-
-// 3. Supabase Database Integrations
-async function initSupabase() {
+  // Load any previously cached edits immediately
   try {
-    // Initialise Supabase Anon Client
-    if (window.supabase) {
-      supabaseAnonClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-      await fetchPortfolioData();
-    } else {
-      console.warn("Supabase SDK script not loaded. Running in offline/fallback mode.");
-      renderPortfolio();
+    const cached = localStorage.getItem('portfolio_data_cache');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      portfolioData = { ...portfolioData, ...parsed };
+      if (parsed.socials) portfolioData.socials = { ...portfolioData.socials, ...parsed.socials };
     }
-  } catch (err) {
-    console.error("Failed to connect to Supabase:", err);
-    renderPortfolio();
+  } catch (e) {
+    console.warn('Could not parse local cache', e);
   }
-}
 
-async function fetchPortfolioData() {
-  if (!supabaseAnonClient) return;
-  
-  try {
-    const { data, error } = await supabaseAnonClient
-      .from('portfolio')
-      .select('*')
-      .eq('id', 1)
-      .single();
-      
-    if (error) {
-      // 404/PGRST205 indicates table does not exist or empty row.
-      console.warn("Supabase fetch returned error (database may not be set up yet):", error.message);
-      portfolioData = { ...defaultPortfolio };
-    } else if (data) {
-      portfolioData = data;
-      console.log("Successfully fetched portfolio data from Supabase backend.");
-    }
-  } catch (err) {
-    console.error("Error reading database:", err);
-    portfolioData = { ...defaultPortfolio };
-  } finally {
-    renderPortfolio();
-  }
-}
+  let currentCoverIndex = 0;
+  let touchStartX = 0;
+  let touchEndX = 0;
 
-// 4. Render UI Elements Dynamically
-function renderPortfolio() {
-  // Main Texts
-  elements.heroName.textContent = portfolioData.name || 'Pradeep Sankar';
-  elements.heroTitle.textContent = portfolioData.title || '';
-  elements.heroBio.textContent = portfolioData.bio || '';
-  elements.aboutBio.textContent = portfolioData.bio || '';
-  
-  // Avatar
-  if (portfolioData.avatar_url) {
-    elements.heroAvatar.src = portfolioData.avatar_url;
-  }
-  
-  // Render Skills
-  elements.skillsList.innerHTML = '';
-  const skills = Array.isArray(portfolioData.skills) ? portfolioData.skills : [];
-  skills.forEach(skill => {
-    const tag = document.createElement('div');
-    tag.className = 'skill-tag';
-    tag.textContent = skill;
-    elements.skillsList.appendChild(tag);
+  // Initialize on DOM Ready
+  window.addEventListener('DOMContentLoaded', () => {
+    initFastLoader();
+    renderAllData();
+    initParallaxBackground();
+    initCoverflowSlider();
+    initTerminalAnimation();
+    initVanillaTilt();
+    initScrollReveal();
+    initAdminWorkstation();
+    hydrateFromSupabase(); // Non-blocking background hydration
   });
-  
-  // Render Projects
-  elements.projectsList.innerHTML = '';
-  const projects = Array.isArray(portfolioData.projects) ? portfolioData.projects : [];
-  if (projects.length === 0) {
-    elements.projectsList.innerHTML = `
-      <div class="project-card glass-panel" style="grid-column: 1/-1; text-align: center; padding: 40px;">
-        <p style="color: var(--text-secondary);">No projects uploaded yet. Open Admin Mode to add your projects!</p>
-      </div>`;
-  } else {
-    projects.forEach(project => {
+
+  /* ==========================================================================
+     1. MINIMALIST LOADING SCREEN (WITH RUNNING AVATAR: 0% TO 100%)
+     ========================================================================== */
+  function initFastLoader() {
+    const loaderScreen = document.getElementById('loader-screen');
+    const progressBar = document.getElementById('loader-progress-bar');
+    const percentNum = document.getElementById('loader-percent-num');
+    const statusText = document.getElementById('loader-status-text');
+    const loaderRunner = document.getElementById('loader-runner');
+    const speechBubble = document.getElementById('loader-speech-bubble');
+
+    if (!loaderScreen) return;
+
+    const statuses = [
+      { p: 20, t: "booting core engine", speech: "Booting..." },
+      { p: 45, t: "loading visual systems", speech: "Running fast! 🏃" },
+      { p: 75, t: "mounting 3D workstation", speech: "Almost there..." },
+      { p: 95, t: "syncing state cache", speech: "Sprinting to 100%!" },
+      { p: 100, t: "ready", speech: "Ready! 🚀" }
+    ];
+
+    const startTime = performance.now();
+    const duration = 1200; // 1.2s smooth running animation from 0% to 100%
+
+    function step(time) {
+      const elapsed = time - startTime;
+      const progress = Math.min(100, Math.floor((elapsed / duration) * 100));
+
+      if (progressBar) progressBar.style.width = `${progress}%`;
+      if (percentNum) percentNum.textContent = `${String(progress).padStart(2, '0')}%`;
+
+      // Move avatar runner smoothly across track
+      if (loaderRunner) {
+        loaderRunner.style.left = `${progress}%`;
+      }
+
+      const currentStatus = statuses.find(s => progress <= s.p) || statuses[statuses.length - 1];
+      if (statusText) statusText.textContent = currentStatus.t;
+      if (speechBubble) speechBubble.textContent = currentStatus.speech;
+
+      if (elapsed < duration) {
+        requestAnimationFrame(step);
+      } else {
+        setTimeout(() => {
+          loaderScreen.classList.add('fade-out');
+          setTimeout(() => {
+            loaderScreen.style.display = 'none';
+          }, 500);
+        }, 160);
+      }
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  /* ==========================================================================
+     2. DATA RENDERING (Instantly populates UI, binds all dynamic fields)
+     ========================================================================== */
+  function renderAllData() {
+    // Brand and Titles
+    const navBrand = document.getElementById('nav-brand-name');
+    if (navBrand && portfolioData.name) navBrand.textContent = portfolioData.name;
+
+    const footerBrand = document.getElementById('footer-brand-name');
+    if (footerBrand && portfolioData.name) footerBrand.textContent = portfolioData.name;
+
+    const heroTitle = document.getElementById('hero-title-text');
+    if (heroTitle && portfolioData.title) heroTitle.textContent = portfolioData.title;
+
+    // Avatar Image - Sync across hero, loader, and background parallax layers
+    const heroAvatar = document.getElementById('hero-avatar');
+    if (heroAvatar && portfolioData.avatar_url) {
+      heroAvatar.src = portfolioData.avatar_url;
+      if (portfolioData.name) heroAvatar.alt = portfolioData.name;
+    }
+
+    const loaderAvatar = document.getElementById('loader-avatar-img');
+    if (loaderAvatar && portfolioData.avatar_url) {
+      loaderAvatar.src = portfolioData.avatar_url;
+    }
+
+    const bgAvatarImgs = document.querySelectorAll('.bg-avatar-img, .watermark-img');
+    bgAvatarImgs.forEach(img => {
+      if (portfolioData.avatar_url) img.src = portfolioData.avatar_url;
+    });
+
+    // Bio / Description
+    const heroBio = document.getElementById('hero-bio-text');
+    if (heroBio && portfolioData.bio) heroBio.textContent = portfolioData.bio;
+
+    const aboutBio = document.getElementById('about-bio-text');
+    if (aboutBio && portfolioData.bio) aboutBio.textContent = portfolioData.bio;
+
+    // Contact & Social Coordinates
+    const email = (portfolioData.socials && portfolioData.socials.email) || portfolioData.email || 'pradeepsankar62@gmail.com';
+    const phone = (portfolioData.socials && portfolioData.socials.phone) || portfolioData.phone || '+91 7904203805';
+    const github = (portfolioData.socials && portfolioData.socials.github) || portfolioData.github || 'https://github.com/pradeepsankar77';
+    const linkedin = (portfolioData.socials && portfolioData.socials.linkedin) || portfolioData.linkedin || 'https://linkedin.com';
+
+    const heroContactBtn = document.getElementById('hero-cta-contact');
+    if (heroContactBtn) heroContactBtn.href = `mailto:${email}`;
+
+    const socialGithub = document.getElementById('social-github');
+    if (socialGithub) socialGithub.href = github;
+
+    const socialLinkedin = document.getElementById('social-linkedin');
+    if (socialLinkedin) socialLinkedin.href = linkedin;
+
+    const socialEmail = document.getElementById('social-email');
+    if (socialEmail) socialEmail.href = `mailto:${email}`;
+
+    const socialPhone = document.getElementById('social-phone');
+    if (socialPhone) {
+      socialPhone.href = `tel:${phone.replace(/\s+/g, '')}`;
+      const phoneSpan = socialPhone.querySelector('span');
+      if (phoneSpan) phoneSpan.textContent = phone;
+    }
+
+    const contactEmailLink = document.getElementById('contact-email-link');
+    if (contactEmailLink) {
+      contactEmailLink.href = `mailto:${email}`;
+      const emailVal = contactEmailLink.querySelector('.btn-meta-val');
+      if (emailVal) emailVal.textContent = email;
+    }
+
+    const contactPhoneLink = document.getElementById('contact-phone-link');
+    if (contactPhoneLink) {
+      contactPhoneLink.href = `tel:${phone.replace(/\s+/g, '')}`;
+      const phoneVal = contactPhoneLink.querySelector('.btn-meta-val');
+      if (phoneVal) phoneVal.textContent = phone;
+    }
+
+    // Complex lists
+    renderProjectsCoverflow();
+    renderSkillsList();
+    renderExperienceTimeline();
+  }
+
+  function renderSkillsList() {
+    const list = document.getElementById('skills-list');
+    if (!list) return;
+
+    const skills = portfolioData.skills && portfolioData.skills.length > 0
+      ? portfolioData.skills
+      : defaultSkills;
+
+    list.innerHTML = '';
+    const colors = ['cyan', 'green', 'blue'];
+
+    skills.forEach((skill, idx) => {
+      const name = typeof skill === 'string' ? skill : (skill.name || '');
+      const level = typeof skill === 'object' && skill.level ? skill.level : 'Production Competency';
+      const color = (typeof skill === 'object' && skill.color) ? skill.color : colors[idx % colors.length];
+
+      const chip = document.createElement('div');
+      chip.className = 'glass-skill-chip';
+      chip.setAttribute('data-tilt', '');
+      chip.setAttribute('data-tilt-max', '14');
+      chip.innerHTML = `
+        <span class="chip-accent ${color}"></span>
+        <span class="chip-name">${escapeHtml(name)}</span>
+        <span class="chip-level">${escapeHtml(level)}</span>
+      `;
+      list.appendChild(chip);
+    });
+
+    if (typeof VanillaTilt !== 'undefined') {
+      VanillaTilt.init(list.querySelectorAll('.glass-skill-chip'), {
+        max: 14,
+        speed: 350,
+        perspective: 1200
+      });
+    }
+  }
+
+  function renderProjectsCoverflow() {
+    const track = document.getElementById('projects-list');
+    const dotsContainer = document.getElementById('coverflow-dots');
+    if (!track) return;
+
+    const projects = portfolioData.projects && portfolioData.projects.length > 0 
+      ? portfolioData.projects 
+      : curatedProjects;
+
+    track.innerHTML = '';
+    if (dotsContainer) dotsContainer.innerHTML = '';
+
+    projects.forEach((proj, idx) => {
       const card = document.createElement('div');
-      card.className = 'project-card glass-panel';
-      
-      const img = project.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop';
-      const tagsHtml = (project.tags || []).map(t => `<span class="project-tag">${t}</span>`).join('');
-      const linkHtml = project.link && project.link !== '#' ? 
-        `<a href="${project.link}" target="_blank" class="project-link">Launch Project &rarr;</a>` : 
-        `<span style="color: var(--text-muted); font-size: 13px;">Personal Concept</span>`;
+      card.className = 'coverflow-card glass-surface';
+      card.setAttribute('data-index', idx);
+
+      const tags = Array.isArray(proj.tags) ? proj.tags : (typeof proj.tags === 'string' ? proj.tags.split(',').map(t => t.trim()) : []);
+      const tagsHtml = tags.map(tag => `<span class="card-tag">${escapeHtml(tag)}</span>`).join('');
+      const demoLink = proj.demo || proj.link || '#';
+      const repoLink = proj.repo || 'https://github.com/pradeepsankar77';
 
       card.innerHTML = `
-        <div class="project-img-wrapper">
-          <img src="${img}" alt="${project.title}" onerror="this.src='https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop'">
-          <div class="project-overlay"></div>
+        <div class="card-img-wrap">
+          <img src="${escapeHtml(proj.image || '')}" alt="${escapeHtml(proj.title)}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop'">
+          <div class="card-img-overlay"></div>
         </div>
-        <div class="project-info">
-          <div class="project-tags">${tagsHtml}</div>
-          <h3 class="project-title">${project.title}</h3>
-          <p class="project-desc">${project.description}</p>
-          ${linkHtml}
+        <div class="card-content">
+          <div class="card-tags">${tagsHtml}</div>
+          <h3 class="card-title">${escapeHtml(proj.title)}</h3>
+          <p class="card-desc">${escapeHtml(proj.description || '')}</p>
+          <div class="card-actions">
+            <a href="${escapeHtml(demoLink)}" target="_blank" rel="noopener" class="card-btn primary">
+              <span>Launch Demo</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+            </a>
+            <a href="${escapeHtml(repoLink)}" target="_blank" rel="noopener" class="card-btn secondary">
+              <span>Code</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+            </a>
+          </div>
         </div>
       `;
-      elements.projectsList.appendChild(card);
+
+      card.addEventListener('click', () => {
+        if (idx !== currentCoverIndex) {
+          goToSlide(idx);
+        }
+      });
+
+      track.appendChild(card);
+
+      if (dotsContainer) {
+        const dot = document.createElement('div');
+        dot.className = `coverflow-dot ${idx === currentCoverIndex ? 'active' : ''}`;
+        dot.addEventListener('click', () => goToSlide(idx));
+        dotsContainer.appendChild(dot);
+      }
     });
+
+    updateCoverflowClasses();
   }
-  
-  // Render Experience Timeline
-  elements.experienceList.innerHTML = '';
-  const experiences = Array.isArray(portfolioData.experience) ? portfolioData.experience : [];
-  if (experiences.length === 0) {
-    elements.experienceList.innerHTML = `
-      <div class="timeline-item glass-panel" style="text-align: center;">
-        <p style="color: var(--text-secondary);">Timeline empty. Edit experience via the dashboard!</p>
-      </div>`;
-  } else {
-    experiences.forEach(exp => {
-      const item = document.createElement('div');
-      item.className = 'timeline-item glass-panel';
-      item.innerHTML = `
+
+  function renderExperienceTimeline() {
+    const list = document.getElementById('experience-list');
+    if (!list) return;
+
+    const items = portfolioData.experience && portfolioData.experience.length > 0 
+      ? portfolioData.experience 
+      : curatedExperience;
+
+    list.innerHTML = '';
+    items.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'timeline-item glass-surface';
+      el.innerHTML = `
         <div class="timeline-dot"></div>
         <div class="timeline-header">
           <div>
-            <h3 class="timeline-role">${exp.role}</h3>
-            <span class="timeline-company">${exp.company}</span>
+            <span class="timeline-role">${escapeHtml(item.role)}</span>
+            <span class="timeline-company">${escapeHtml(item.company)}</span>
           </div>
-          <span class="timeline-period">${exp.period}</span>
+          <span class="timeline-period">${escapeHtml(item.period)}</span>
         </div>
-        <p class="timeline-desc">${exp.description}</p>
+        <p class="timeline-desc">${escapeHtml(item.description)}</p>
       `;
-      elements.experienceList.appendChild(item);
+      list.appendChild(el);
     });
   }
 
-  // Social Links & Contact Details
-  const socials = portfolioData.socials || {};
-  
-  // Fall back to defaults if DB value is empty or dummy placeholder
-  const email = (socials.email && socials.email !== 'pradeep@example.com' && socials.email !== 'example@example.com') 
-    ? socials.email 
-    : 'pradeepsankar62@gmail.com';
-    
-  const phone = (socials.phone && socials.phone.trim() !== '') 
-    ? socials.phone 
-    : '7904203805';
+  /* ==========================================================================
+     PARALLAX 3D BACKGROUND AVATAR INTERACTION
+     ========================================================================== */
+  function initParallaxBackground() {
+    const orb1 = document.getElementById('bg-parallax-avatar-1');
+    const orb2 = document.getElementById('bg-parallax-avatar-2');
+    const watermark = document.getElementById('bg-parallax-watermark');
 
-  elements.socialGithub.href = socials.github || '#';
-  elements.socialLinkedin.href = socials.linkedin || '#';
-  elements.socialTwitter.href = socials.twitter || '#';
-  elements.socialEmail.href = `mailto:${email}`;
-  
-  // Contact Details Section
-  if (elements.contactPhone) {
-    elements.contactPhone.href = `tel:${phone}`;
-    elements.contactPhone.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; color: var(--primary-glow);"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> +91 ${phone}`;
+    if (!orb1 && !orb2 && !watermark) return;
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let currentScrollY = window.pageYOffset || 0;
+    let ticking = false;
+
+    function updateParallax() {
+      // 1. Vertical scroll parallax & 3D tilt
+      if (orb1) {
+        const y1 = currentScrollY * 0.16 + (mouseY * 0.025);
+        const x1 = mouseX * 0.02;
+        const rot1 = Math.sin(currentScrollY * 0.002) * 4;
+        orb1.style.transform = `translate3d(${x1}px, ${y1}px, 0) rotate(${rot1}deg)`;
+      }
+
+      if (orb2) {
+        const y2 = (currentScrollY * -0.1) - (mouseY * 0.018);
+        const x2 = -mouseX * 0.018;
+        const rot2 = Math.cos(currentScrollY * 0.002) * -3;
+        orb2.style.transform = `translate3d(${x2}px, ${y2}px, 0) rotate(${rot2}deg)`;
+      }
+
+      if (watermark) {
+        const yW = currentScrollY * 0.07;
+        const scaleW = 1 + Math.min(0.18, currentScrollY * 0.0001);
+        watermark.style.transform = `translate(-50%, ${yW}px) scale(${scaleW})`;
+      }
+
+      ticking = false;
+    }
+
+    function requestTick() {
+      if (!ticking) {
+        requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+      requestTick();
+    }, { passive: true });
+
+    window.addEventListener('mousemove', (e) => {
+      const halfW = window.innerWidth / 2;
+      const halfH = window.innerHeight / 2;
+      mouseX = e.clientX - halfW;
+      mouseY = e.clientY - halfH;
+      requestTick();
+    }, { passive: true });
+
+    updateParallax();
   }
-  if (elements.contactEmail) {
-    elements.contactEmail.href = `mailto:${email}`;
-    elements.contactEmail.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; color: var(--secondary-glow);"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> ${email}`;
+
+  /* ==========================================================================
+     3. 3D COVERFLOW PROJECT SLIDER LOGIC
+     ========================================================================== */
+  function initCoverflowSlider() {
+    const btnPrev = document.getElementById('btn-coverflow-prev');
+    const btnNext = document.getElementById('btn-coverflow-next');
+    const wrapper = document.getElementById('coverflow-wrapper');
+
+    if (btnPrev) {
+      btnPrev.addEventListener('click', () => {
+        const count = getProjectsCount();
+        if (count > 0) goToSlide((currentCoverIndex - 1 + count) % count);
+      });
+    }
+
+    if (btnNext) {
+      btnNext.addEventListener('click', () => {
+        const count = getProjectsCount();
+        if (count > 0) goToSlide((currentCoverIndex + 1) % count);
+      });
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        const count = getProjectsCount();
+        if (count > 0) goToSlide((currentCoverIndex - 1 + count) % count);
+      } else if (e.key === 'ArrowRight') {
+        const count = getProjectsCount();
+        if (count > 0) goToSlide((currentCoverIndex + 1) % count);
+      }
+    });
+
+    if (wrapper) {
+      wrapper.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      wrapper.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+      }, { passive: true });
+    }
   }
-  
-  // Re-run scroll-reveal on dynamically rendered items
-  setTimeout(() => {
+
+  function handleSwipe() {
+    const threshold = 40;
+    const count = getProjectsCount();
+    if (count <= 0) return;
+    if (touchEndX < touchStartX - threshold) {
+      goToSlide((currentCoverIndex + 1) % count);
+    } else if (touchEndX > touchStartX + threshold) {
+      goToSlide((currentCoverIndex - 1 + count) % count);
+    }
+  }
+
+  function getProjectsCount() {
+    return (portfolioData.projects && portfolioData.projects.length) || curatedProjects.length;
+  }
+
+  function goToSlide(idx) {
+    const count = getProjectsCount();
+    if (count === 0) return;
+    currentCoverIndex = Math.max(0, Math.min(idx, count - 1));
+    updateCoverflowClasses();
+  }
+
+  function updateCoverflowClasses() {
+    const cards = document.querySelectorAll('.coverflow-card');
+    const dots = document.querySelectorAll('.coverflow-dot');
+    const total = cards.length;
+    if (total === 0) return;
+
+    cards.forEach((card, idx) => {
+      card.classList.remove('active', 'prev', 'next', 'far-prev', 'far-next');
+
+      const diff = idx - currentCoverIndex;
+
+      if (diff === 0) {
+        card.classList.add('active');
+      } else if (diff === -1 || (diff === total - 1 && total > 2)) {
+        card.classList.add('prev');
+      } else if (diff === 1 || (diff === -(total - 1) && total > 2)) {
+        card.classList.add('next');
+      } else if (diff < -1) {
+        card.classList.add('far-prev');
+      } else if (diff > 1) {
+        card.classList.add('far-next');
+      }
+    });
+
+    dots.forEach((dot, idx) => {
+      if (idx === currentCoverIndex) {
+        dot.classList.add('active');
+      } else {
+        dot.classList.remove('active');
+      }
+    });
+  }
+
+  /* ==========================================================================
+     4. ANIMATED DEVELOPER TERMINAL CARD
+     ========================================================================== */
+  function initTerminalAnimation() {
+    // Retain clean terminal layout with responsive state
+  }
+
+  /* ==========================================================================
+     5. VANILLA TILT & 3D RESTRAINT
+     ========================================================================== */
+  function initVanillaTilt() {
+    if (typeof VanillaTilt === 'undefined') return;
+
+    VanillaTilt.init(document.querySelectorAll('.cinematic-photo-wrapper'), {
+      max: 10,
+      speed: 400,
+      glare: true,
+      'max-glare': 0.25,
+      perspective: 1000
+    });
+
+    VanillaTilt.init(document.querySelectorAll('.terminal-card'), {
+      max: 8,
+      speed: 400,
+      perspective: 1000
+    });
+
+    VanillaTilt.init(document.querySelectorAll('.focus-card, .glass-skill-chip, .contact-card'), {
+      max: 8,
+      speed: 350,
+      perspective: 1200
+    });
+  }
+
+  /* ==========================================================================
+     6. SCROLL REVEAL (INTERSECTION OBSERVER)
+     ========================================================================== */
+  function initScrollReveal() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const sections = document.querySelectorAll('section');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('revealed');
         }
       });
-    }, { threshold: 0.05 });
-    
-    document.querySelectorAll('.project-card, .timeline-item').forEach(el => {
-      if (!el.classList.contains('scroll-reveal')) {
-        el.classList.add('scroll-reveal');
-      }
-      observer.observe(el);
+    }, { threshold: 0.15 });
+
+    sections.forEach(s => {
+      s.classList.add('scroll-reveal');
+      observer.observe(s);
     });
-  }, 100);
-  
-  // Render Certificates
-  if (elements.certificatesList) {
-    elements.certificatesList.innerHTML = '';
-    const certificates = (portfolioData.socials && Array.isArray(portfolioData.socials.certificates)) 
-      ? portfolioData.socials.certificates 
-      : [];
-    
-    if (certificates.length === 0) {
-      elements.certificatesList.innerHTML = `
-        <div class="project-card glass-panel" style="grid-column: 1/-1; text-align: center; padding: 20px; margin: 0;">
-          <p style="color: var(--text-secondary); font-size: 14px;">No certificates uploaded yet.</p>
-        </div>`;
-    } else {
-      certificates.forEach((cert, idx) => {
-        const isPdf = cert.name.toLowerCase().endsWith('.pdf');
-        const iconSvg = isPdf 
-          ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`
-          : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
+  }
 
-        const deleteButtonHtml = secretKey 
-          ? `<button class="btn-icon btn-icon-delete" style="font-size: 20px; color: var(--text-muted); margin-left: 8px; line-height: 1;" onclick="window.deleteCertificate(${idx})">&times;</button>`
-          : '';
+  /* ==========================================================================
+     7. ASYNCHRONOUS SUPABASE HYDRATION (GRACEFUL FALLBACK)
+     ========================================================================== */
+  async function hydrateFromSupabase() {
+    if (!CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY || typeof supabase === 'undefined') {
+      return;
+    }
 
-        const card = document.createElement('div');
-        card.className = 'project-card glass-panel scroll-reveal revealed';
-        card.style.padding = '20px';
-        card.style.display = 'flex';
-        card.style.flexDirection = 'row';
-        card.style.alignItems = 'center';
-        card.style.justifyContent = 'space-between';
-        card.style.gap = '15px';
-        card.style.margin = '0';
+    try {
+      const client = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+      const { data, error } = await client.from('portfolio_data').select('*').single();
+
+      if (!error && data) {
+        if (data.name) portfolioData.name = data.name;
+        if (data.title) portfolioData.title = data.title;
+        if (data.bio) portfolioData.bio = data.bio;
+        if (data.avatar_url) portfolioData.avatar_url = data.avatar_url;
+
+        if (Array.isArray(data.skills) && data.skills.length > 0) {
+          portfolioData.skills = data.skills;
+        }
+        if (Array.isArray(data.projects) && data.projects.length > 0) {
+          portfolioData.projects = data.projects;
+        }
+        if (Array.isArray(data.experience) && data.experience.length > 0) {
+          portfolioData.experience = data.experience;
+        }
+        if (data.socials && typeof data.socials === 'object') {
+          portfolioData.socials = { ...portfolioData.socials, ...data.socials };
+        }
+
+        // Cache cloud state locally
+        localStorage.setItem('portfolio_data_cache', JSON.stringify(portfolioData));
+        renderAllData();
+
+        // Update admin inputs if open
+        const editorPanel = document.getElementById('editor-panel');
+        if (editorPanel && editorPanel.style.display !== 'none') {
+          populateAdminForm();
+        }
+
+        const dot = document.getElementById('db-status-dot');
+        const statusText = document.getElementById('db-status-text');
+        if (dot) {
+          dot.className = 'status-dot-active';
+        }
+        if (statusText) statusText.textContent = 'Supabase Synced';
+      }
+    } catch (err) {
+      console.log('Workstation data active (offline or uninitialized table).');
+    }
+  }
+
+  /* ==========================================================================
+     8. ADMIN WORKSTATION CMS CONTROLLER (Full CRUD & Cloud Sync)
+     ========================================================================== */
+  function initAdminWorkstation() {
+    const adminDrawer = document.getElementById('admin-drawer');
+    const btnClose = document.getElementById('btn-drawer-close');
+    const btnLock = document.getElementById('btn-admin-lock');
+    const btnAuth = document.getElementById('btn-auth-submit');
+    const secretInput = document.getElementById('admin-secret-input');
+    const authPanel = document.getElementById('auth-panel');
+    const editorPanel = document.getElementById('editor-panel');
+    const btnTogglePassword = document.getElementById('btn-toggle-password');
+    const navAdminBtn = document.getElementById('nav-admin-btn');
+    const footerAdminLink = document.getElementById('footer-admin-link');
+
+    const ADMIN_PASSCODE = 'pradeep@2007';
+
+    // Direct click listeners for Admin buttons
+    if (navAdminBtn) {
+      navAdminBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.hash = '#admin';
+        if (adminDrawer) adminDrawer.style.display = 'flex';
+        checkAdminState();
+      });
+    }
+
+    if (footerAdminLink) {
+      footerAdminLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.hash = '#admin';
+        if (adminDrawer) adminDrawer.style.display = 'flex';
+        checkAdminState();
+      });
+    }
+
+    // Routing & Display Handler
+    function checkAdminState() {
+      const isAuth = localStorage.getItem('admin_authorized') === 'true' && localStorage.getItem('admin_passcode') === ADMIN_PASSCODE;
+      if (isAuth) {
+        if (authPanel) authPanel.style.display = 'none';
+        if (editorPanel) editorPanel.style.display = 'flex';
+        if (btnLock) btnLock.style.display = 'inline-flex';
+        populateAdminForm();
+      } else {
+        if (authPanel) authPanel.style.display = 'block';
+        if (editorPanel) editorPanel.style.display = 'none';
+        if (btnLock) btnLock.style.display = 'none';
+      }
+    }
+
+    function checkAdminHash() {
+      if (window.location.hash === '#admin') {
+        if (adminDrawer) adminDrawer.style.display = 'flex';
+        checkAdminState();
+      } else {
+        if (adminDrawer) adminDrawer.style.display = 'none';
+      }
+    }
+
+    window.addEventListener('hashchange', checkAdminHash);
+    checkAdminHash();
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => {
+        window.location.hash = '';
+      });
+    }
+
+    if (btnLock) {
+      btnLock.addEventListener('click', () => {
+        localStorage.removeItem('admin_authorized');
+        localStorage.removeItem('admin_passcode');
+        if (editorPanel) editorPanel.style.display = 'none';
+        if (authPanel) authPanel.style.display = 'block';
+        if (btnLock) btnLock.style.display = 'none';
+        if (secretInput) {
+          secretInput.value = '';
+          secretInput.focus();
+        }
+        alert('🔒 Admin workstation locked.');
+      });
+    }
+
+    if (btnTogglePassword && secretInput) {
+      btnTogglePassword.addEventListener('click', () => {
+        secretInput.type = secretInput.type === 'password' ? 'text' : 'password';
+      });
+    }
+
+    if (btnAuth && secretInput) {
+      const unlockHandler = () => {
+        const entered = secretInput.value.trim();
+        const authErr = document.getElementById('auth-error-msg');
         
-        card.innerHTML = `
-          <div style="display: flex; align-items: center; gap: 12px; overflow: hidden; flex-grow: 1;">
-            ${iconSvg}
-            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1; text-align: left;">
-              <h4 style="font-size: 15px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0;" title="${cert.name}">${cert.name}</h4>
-              <span style="font-size: 11px; color: var(--text-muted);">${isPdf ? 'PDF Document' : 'Image File'}</span>
-            </div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-            <a href="${cert.url}" target="_blank" class="btn-glass" style="padding: 6px 14px; font-size: 12px; border-radius: 10px; margin: 0; text-decoration: none;">View</a>
-            ${deleteButtonHtml}
-          </div>
-        `;
-        elements.certificatesList.appendChild(card);
+        if (entered === ADMIN_PASSCODE) {
+          if (authErr) authErr.style.display = 'none';
+          localStorage.setItem('admin_authorized', 'true');
+          localStorage.setItem('admin_passcode', ADMIN_PASSCODE);
+          if (authPanel) authPanel.style.display = 'none';
+          if (editorPanel) editorPanel.style.display = 'flex';
+          if (btnLock) btnLock.style.display = 'inline-flex';
+          populateAdminForm();
+          showAdminNotice('🎉 Admin workstation unlocked. You can now edit and sync any section.', 'success');
+        } else {
+          if (authErr) {
+            authErr.style.display = 'block';
+            setTimeout(() => {
+              authErr.style.display = 'none';
+            }, 5000);
+          } else {
+            alert('Access Denied: Incorrect password.');
+          }
+          secretInput.value = '';
+          secretInput.focus();
+        }
+      };
+
+      btnAuth.addEventListener('click', unlockHandler);
+      secretInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') unlockHandler();
+      });
+    }
+
+    // Bind Admin Interactive Controls
+    bindProfileAvatarControls();
+    bindProjectsAdminControls();
+    bindSkillsAdminControls();
+    bindExperienceAdminControls();
+    bindSqlCopyButton();
+    bindGlobalSaveButtons();
+  }
+
+  // Populate Admin Inputs from State
+  function populateAdminForm() {
+    const editName = document.getElementById('edit-name');
+    const editTitle = document.getElementById('edit-title');
+    const editAvatar = document.getElementById('edit-avatar');
+    const editAvatarPreview = document.getElementById('edit-avatar-preview');
+    const editBio = document.getElementById('edit-bio');
+    const editEmail = document.getElementById('edit-email');
+    const editPhone = document.getElementById('edit-phone');
+    const editGithub = document.getElementById('edit-github');
+    const editLinkedin = document.getElementById('edit-linkedin');
+
+    if (editName) editName.value = portfolioData.name || '';
+    if (editTitle) editTitle.value = portfolioData.title || '';
+    if (editAvatar) editAvatar.value = portfolioData.avatar_url || '';
+    if (editAvatarPreview) editAvatarPreview.src = portfolioData.avatar_url || 'IMG_20260528_204530_630.png';
+    if (editBio) editBio.value = portfolioData.bio || '';
+
+    const socials = portfolioData.socials || {};
+    if (editEmail) editEmail.value = socials.email || portfolioData.email || '';
+    if (editPhone) editPhone.value = socials.phone || portfolioData.phone || '';
+    if (editGithub) editGithub.value = socials.github || portfolioData.github || '';
+    if (editLinkedin) editLinkedin.value = socials.linkedin || portfolioData.linkedin || '';
+
+    renderAdminProjectsList();
+    renderAdminSkillsList();
+    renderAdminExperienceList();
+  }
+
+  // 1. Profile & Avatar Controls (Supports URL & Local File Upload via Base64)
+  function bindProfileAvatarControls() {
+    const editAvatar = document.getElementById('edit-avatar');
+    const fileUpload = document.getElementById('avatar-file-upload');
+    const preview = document.getElementById('edit-avatar-preview');
+
+    if (editAvatar && preview) {
+      editAvatar.addEventListener('input', () => {
+        const val = editAvatar.value.trim();
+        if (val) preview.src = val;
+      });
+    }
+
+    if (fileUpload && editAvatar && preview) {
+      fileUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Check file size (< 2MB recommended for database JSON)
+        if (file.size > 2.5 * 1024 * 1024) {
+          alert('Image size is large. For fast performance, please select an image under 2MB.');
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const base64Url = event.target.result;
+          editAvatar.value = base64Url;
+          preview.src = base64Url;
+          showAdminNotice('Photo uploaded! Click "Save to Supabase" to apply changes.', 'success');
+        };
+        reader.readAsDataURL(file);
       });
     }
   }
-}
 
-// 5. Admin Panel Event Handlers
-function setupAdminEvents() {
-  // Drawer Open / Close
-  elements.btnAdminToggle.addEventListener('click', () => {
-    elements.adminDrawer.classList.toggle('open');
-    if (elements.adminDrawer.classList.contains('open')) {
-      if (secretKey) {
-        showEditorScreen();
-      } else {
-        showAuthScreen();
-      }
+  // 2. Projects Admin Management (Add, Edit, Delete)
+  function bindProjectsAdminControls() {
+    const btnToggleAdd = document.getElementById('btn-toggle-add-project');
+    const formContainer = document.getElementById('project-form-container');
+    const formTitle = document.getElementById('project-form-title');
+    const formIndex = document.getElementById('project-form-index');
+    const btnCancel = document.getElementById('btn-cancel-project-entry');
+    const btnSave = document.getElementById('btn-save-project-entry');
+
+    const inputTitle = document.getElementById('proj-input-title');
+    const inputDesc = document.getElementById('proj-input-desc');
+    const inputImage = document.getElementById('proj-input-image');
+    const inputTags = document.getElementById('proj-input-tags');
+    const inputDemo = document.getElementById('proj-input-demo');
+    const inputRepo = document.getElementById('proj-input-repo');
+
+    if (btnToggleAdd && formContainer) {
+      btnToggleAdd.addEventListener('click', () => {
+        const isHidden = formContainer.style.display === 'none';
+        formContainer.style.display = isHidden ? 'block' : 'none';
+        if (isHidden) {
+          formTitle.textContent = 'New Project Entry';
+          formIndex.value = '-1';
+          if (inputTitle) inputTitle.value = '';
+          if (inputDesc) inputDesc.value = '';
+          if (inputImage) inputImage.value = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop';
+          if (inputTags) inputTags.value = 'React, Node.js';
+          if (inputDemo) inputDemo.value = '';
+          if (inputRepo) inputRepo.value = '';
+          if (inputTitle) inputTitle.focus();
+        }
+      });
     }
-  });
 
-  elements.btnDrawerClose.addEventListener('click', () => {
-    elements.adminDrawer.classList.remove('open');
-  });
+    if (btnCancel && formContainer) {
+      btnCancel.addEventListener('click', () => {
+        formContainer.style.display = 'none';
+      });
+    }
 
-  // Authorization Submission
-  elements.btnAuthSubmit.addEventListener('click', () => {
-    const password = elements.adminSecretInput.value.trim();
-    if (!password) {
-      alert("Please enter the Admin Password.");
+    if (btnSave && formContainer) {
+      btnSave.addEventListener('click', () => {
+        const title = inputTitle ? inputTitle.value.trim() : '';
+        if (!title) {
+          alert('Project title is required.');
+          return;
+        }
+
+        const tagsRaw = inputTags ? inputTags.value.trim() : '';
+        const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+        const projectItem = {
+          title,
+          description: inputDesc ? inputDesc.value.trim() : '',
+          image: inputImage && inputImage.value.trim() ? inputImage.value.trim() : 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop',
+          tags: tags.length > 0 ? tags : ['Web Development'],
+          demo: inputDemo ? inputDemo.value.trim() : '#',
+          repo: inputRepo ? inputRepo.value.trim() : 'https://github.com/pradeepsankar77'
+        };
+
+        const editIdx = parseInt(formIndex.value, 10);
+        if (editIdx >= 0 && editIdx < portfolioData.projects.length) {
+          portfolioData.projects[editIdx] = projectItem;
+          showAdminNotice(`Updated project: "${title}"`, 'success');
+        } else {
+          portfolioData.projects.unshift(projectItem);
+          showAdminNotice(`Added project: "${title}"`, 'success');
+        }
+
+        formContainer.style.display = 'none';
+        renderAdminProjectsList();
+        renderProjectsCoverflow();
+      });
+    }
+  }
+
+  function renderAdminProjectsList() {
+    const list = document.getElementById('admin-projects-list');
+    if (!list) return;
+
+    list.innerHTML = '';
+    const projects = portfolioData.projects || [];
+
+    if (projects.length === 0) {
+      list.innerHTML = '<div style="font-size: 12px; color: var(--muted); padding: 8px;">No projects added yet.</div>';
       return;
     }
-    
-    testAdminPassword(password);
-  });
-  
-  // Password Visibility Toggle (Eye Button)
-  const btnTogglePassword = document.getElementById('btn-toggle-password');
-  if (btnTogglePassword) {
-    btnTogglePassword.addEventListener('click', () => {
-      const type = elements.adminSecretInput.type === 'password' ? 'text' : 'password';
-      elements.adminSecretInput.type = type;
-      
-      const eyeIcon = document.getElementById('eye-icon');
-      if (type === 'text') {
-        // Eye closed SVG
-        eyeIcon.innerHTML = `
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-          <line x1="1" y1="1" x2="23" y2="23"></line>
-        `;
-      } else {
-        // Eye open SVG
-        eyeIcon.innerHTML = `
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        `;
-      }
+
+    projects.forEach((proj, idx) => {
+      const row = document.createElement('div');
+      row.className = 'admin-item-row';
+      row.innerHTML = `
+        <div class="admin-item-info">
+          <span class="admin-item-title">${escapeHtml(proj.title)}</span>
+          <span class="admin-item-meta">${Array.isArray(proj.tags) ? escapeHtml(proj.tags.join(', ')) : ''}</span>
+        </div>
+        <div class="admin-item-actions">
+          <button type="button" class="btn-mini btn-edit-proj" data-index="${idx}">Edit</button>
+          <button type="button" class="btn-mini danger btn-del-proj" data-index="${idx}">Delete</button>
+        </div>
+      `;
+
+      // Edit Project
+      row.querySelector('.btn-edit-proj').addEventListener('click', () => {
+        const formContainer = document.getElementById('project-form-container');
+        const formTitle = document.getElementById('project-form-title');
+        const formIndex = document.getElementById('project-form-index');
+        const inputTitle = document.getElementById('proj-input-title');
+        const inputDesc = document.getElementById('proj-input-desc');
+        const inputImage = document.getElementById('proj-input-image');
+        const inputTags = document.getElementById('proj-input-tags');
+        const inputDemo = document.getElementById('proj-input-demo');
+        const inputRepo = document.getElementById('proj-input-repo');
+
+        formIndex.value = idx;
+        formTitle.textContent = `Edit Project: ${proj.title}`;
+        if (inputTitle) inputTitle.value = proj.title || '';
+        if (inputDesc) inputDesc.value = proj.description || '';
+        if (inputImage) inputImage.value = proj.image || '';
+        if (inputTags) inputTags.value = Array.isArray(proj.tags) ? proj.tags.join(', ') : (proj.tags || '');
+        if (inputDemo) inputDemo.value = proj.demo || '';
+        if (inputRepo) inputRepo.value = proj.repo || '';
+
+        formContainer.style.display = 'block';
+        formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      // Delete Project
+      row.querySelector('.btn-del-proj').addEventListener('click', () => {
+        if (confirm(`Delete project "${proj.title}"?`)) {
+          portfolioData.projects.splice(idx, 1);
+          renderAdminProjectsList();
+          renderProjectsCoverflow();
+          showAdminNotice(`Deleted project "${proj.title}".`, 'success');
+        }
+      });
+
+      list.appendChild(row);
     });
   }
 
-  // Logout / Lock
-  elements.btnAdminLogout.addEventListener('click', () => {
-    secretKey = '';
-    localStorage.removeItem('admin_secret');
-    document.body.classList.remove('admin-mode');
-    showAuthScreen();
-  });
+  // 3. Skills Admin Management (Pills with Delete & Add)
+  function bindSkillsAdminControls() {
+    const inputSkill = document.getElementById('input-new-skill');
+    const btnAddSkill = document.getElementById('btn-add-skill-item');
 
-  // Save Everything to Database
-  elements.btnSaveAll.addEventListener('click', saveAllToBackend);
+    const addSkillAction = () => {
+      const val = inputSkill ? inputSkill.value.trim() : '';
+      if (!val) return;
 
-  // Sub-items adding
-  elements.btnAddSkill.addEventListener('click', addSkillTag);
-  elements.btnAddProject.addEventListener('click', () => openProjectModal(-1));
-  elements.btnAddExperience.addEventListener('click', () => openExperienceModal(-1));
+      const colors = ['cyan', 'green', 'blue'];
+      const color = colors[portfolioData.skills.length % colors.length];
 
-  // Modal cancellations
-  elements.btnModalProjCancel.addEventListener('click', () => elements.projectModal.classList.remove('open'));
-  elements.btnModalExpCancel.addEventListener('click', () => elements.experienceModal.classList.remove('open'));
+      portfolioData.skills.push({
+        name: val,
+        level: "Technical Competency",
+        color: color
+      });
 
-  // Modal saves
-  elements.btnModalProjSave.addEventListener('click', saveProjectModal);
-  elements.btnModalExpSave.addEventListener('click', saveExperienceModal);
-  
-  // Certificate Upload triggers
-  if (elements.btnTriggerUpload && elements.certFileInput) {
-    elements.btnTriggerUpload.addEventListener('click', () => {
-      elements.certFileInput.click();
-    });
-    elements.certFileInput.addEventListener('change', uploadCertificate);
-  }
-}
-
-// Check password validity locally
-function testAdminPassword(password) {
-  if (password !== 'pradeep@2007') {
-    alert("Incorrect Admin Password. Please try again.");
-    return;
-  }
-  
-  secretKey = 'authorized';
-  localStorage.setItem('admin_secret', secretKey);
-  showEditorScreen();
-}
-
-function showAuthScreen() {
-  elements.authPanel.style.display = 'flex';
-  elements.editorPanel.style.display = 'none';
-  elements.btnAdminLogout.style.display = 'none';
-  elements.btnSaveAll.style.display = 'none';
-  document.body.classList.remove('admin-mode');
-  elements.adminBadge.style.display = 'none';
-  if (elements.certUploadPanel) {
-    elements.certUploadPanel.style.display = 'none';
-  }
-}
-
-function showEditorScreen() {
-  elements.authPanel.style.display = 'none';
-  elements.editorPanel.style.display = 'flex';
-  elements.btnAdminLogout.style.display = 'inline-flex';
-  elements.btnSaveAll.style.display = 'inline-flex';
-  document.body.classList.add('admin-mode');
-  elements.adminBadge.style.display = 'inline-block';
-  if (elements.certUploadPanel) {
-    elements.certUploadPanel.style.display = 'flex';
-  }
-  
-  populateAdminInputs();
-}
-
-// Prefill form controls with current data
-function populateAdminInputs() {
-  elements.editName.value = portfolioData.name || '';
-  elements.editTitle.value = portfolioData.title || '';
-  elements.editAvatar.value = portfolioData.avatar_url || '';
-  elements.editBio.value = portfolioData.bio || '';
-  
-  const socials = portfolioData.socials || {};
-  elements.editGithub.value = socials.github || '';
-  elements.editLinkedin.value = socials.linkedin || '';
-  elements.editTwitter.value = socials.twitter || '';
-  
-  const email = (socials.email && socials.email !== 'pradeep@example.com' && socials.email !== 'example@example.com') 
-    ? socials.email 
-    : 'pradeepsankar62@gmail.com';
-    
-  const phone = (socials.phone && socials.phone.trim() !== '') 
-    ? socials.phone 
-    : '7904203805';
-    
-  elements.editEmail.value = email;
-  elements.editPhone.value = phone;
-  
-  renderAdminSkills();
-  renderAdminProjects();
-  renderAdminExperience();
-}
-
-// Admin list renderers
-function renderAdminSkills() {
-  elements.adminSkillsList.innerHTML = '';
-  const skills = Array.isArray(portfolioData.skills) ? portfolioData.skills : [];
-  skills.forEach((skill, idx) => {
-    const item = document.createElement('div');
-    item.className = 'list-editor-item';
-    item.innerHTML = `
-      <span class="list-editor-item-title">${skill}</span>
-      <div class="list-editor-item-actions">
-        <button class="btn-icon btn-icon-delete" data-index="${idx}">&times;</button>
-      </div>
-    `;
-    item.querySelector('.btn-icon-delete').addEventListener('click', () => {
-      portfolioData.skills.splice(idx, 1);
-      renderAdminSkills();
-    });
-    elements.adminSkillsList.appendChild(item);
-  });
-}
-
-function renderAdminProjects() {
-  elements.adminProjectsList.innerHTML = '';
-  const projects = Array.isArray(portfolioData.projects) ? portfolioData.projects : [];
-  projects.forEach((proj, idx) => {
-    const item = document.createElement('div');
-    item.className = 'list-editor-item';
-    item.innerHTML = `
-      <span class="list-editor-item-title">${proj.title}</span>
-      <div class="list-editor-item-actions">
-        <button class="btn-icon btn-icon-edit" data-index="${idx}">✏️</button>
-        <button class="btn-icon btn-icon-delete" data-index="${idx}">&times;</button>
-      </div>
-    `;
-    item.querySelector('.btn-icon-edit').addEventListener('click', () => openProjectModal(idx));
-    item.querySelector('.btn-icon-delete').addEventListener('click', () => {
-      portfolioData.projects.splice(idx, 1);
-      renderAdminProjects();
-    });
-    elements.adminProjectsList.appendChild(item);
-  });
-}
-
-function renderAdminExperience() {
-  elements.adminExperienceList.innerHTML = '';
-  const experiences = Array.isArray(portfolioData.experience) ? portfolioData.experience : [];
-  experiences.forEach((exp, idx) => {
-    const item = document.createElement('div');
-    item.className = 'list-editor-item';
-    item.innerHTML = `
-      <span class="list-editor-item-title">${exp.role} @ ${exp.company}</span>
-      <div class="list-editor-item-actions">
-        <button class="btn-icon btn-icon-edit" data-index="${idx}">✏️</button>
-        <button class="btn-icon btn-icon-delete" data-index="${idx}">&times;</button>
-      </div>
-    `;
-    item.querySelector('.btn-icon-edit').addEventListener('click', () => openExperienceModal(idx));
-    item.querySelector('.btn-icon-delete').addEventListener('click', () => {
-      portfolioData.experience.splice(idx, 1);
-      renderAdminExperience();
-    });
-    elements.adminExperienceList.appendChild(item);
-  });
-}
-
-// Add/Delete Skill
-function addSkillTag() {
-  const skill = prompt("Enter a new skill (e.g. TypeScript, GraphQL):");
-  if (skill && skill.trim()) {
-    if (!Array.isArray(portfolioData.skills)) portfolioData.skills = [];
-    portfolioData.skills.push(skill.trim());
-    renderAdminSkills();
-  }
-}
-
-// Project Modal Logic
-function openProjectModal(index) {
-  elements.modalProjIndex.value = index;
-  if (index >= 0) {
-    const project = portfolioData.projects[index];
-    elements.modalProjTitle.value = project.title || '';
-    elements.modalProjDesc.value = project.description || '';
-    elements.modalProjImage.value = project.image || '';
-    elements.modalProjTags.value = (project.tags || []).join(', ');
-    elements.modalProjLink.value = project.link || '';
-  } else {
-    elements.modalProjTitle.value = '';
-    elements.modalProjDesc.value = '';
-    elements.modalProjImage.value = '';
-    elements.modalProjTags.value = '';
-    elements.modalProjLink.value = '';
-  }
-  elements.projectModal.classList.add('open');
-}
-
-function saveProjectModal() {
-  const index = parseInt(elements.modalProjIndex.value);
-  const title = elements.modalProjTitle.value.trim();
-  const description = elements.modalProjDesc.value.trim();
-  const image = elements.modalProjImage.value.trim();
-  const tags = elements.modalProjTags.value.split(',').map(t => t.trim()).filter(t => t);
-  const link = elements.modalProjLink.value.trim();
-  
-  if (!title) {
-    alert("Project title is required!");
-    return;
-  }
-  
-  const projectObj = { title, description, image, tags, link };
-  
-  if (!Array.isArray(portfolioData.projects)) portfolioData.projects = [];
-  
-  if (index >= 0) {
-    portfolioData.projects[index] = projectObj;
-  } else {
-    portfolioData.projects.push(projectObj);
-  }
-  
-  renderAdminProjects();
-  elements.projectModal.classList.remove('open');
-}
-
-// Experience Modal Logic
-function openExperienceModal(index) {
-  elements.modalExpIndex.value = index;
-  if (index >= 0) {
-    const exp = portfolioData.experience[index];
-    elements.modalExpRole.value = exp.role || '';
-    elements.modalExpCompany.value = exp.company || '';
-    elements.modalExpPeriod.value = exp.period || '';
-    elements.modalExpDesc.value = exp.description || '';
-  } else {
-    elements.modalExpRole.value = '';
-    elements.modalExpCompany.value = '';
-    elements.modalExpPeriod.value = '';
-    elements.modalExpDesc.value = '';
-  }
-  elements.experienceModal.classList.add('open');
-}
-
-function saveExperienceModal() {
-  const index = parseInt(elements.modalExpIndex.value);
-  const role = elements.modalExpRole.value.trim();
-  const company = elements.modalExpCompany.value.trim();
-  const period = elements.modalExpPeriod.value.trim();
-  const description = elements.modalExpDesc.value.trim();
-  
-  if (!role || !company) {
-    alert("Role and Company are required!");
-    return;
-  }
-  
-  const expObj = { role, company, period, description };
-  
-  if (!Array.isArray(portfolioData.experience)) portfolioData.experience = [];
-  
-  if (index >= 0) {
-    portfolioData.experience[index] = expObj;
-  } else {
-    portfolioData.experience.push(expObj);
-  }
-  
-  renderAdminExperience();
-  elements.experienceModal.classList.remove('open');
-}
-
-// 6. Push Changes to Supabase
-async function saveAllToBackend() {
-  try {
-    if (!secretKey) {
-      alert("Not authorized. Please recheck your access.");
-      return;
-    }
-    
-    elements.btnSaveAll.disabled = true;
-    elements.btnSaveAll.textContent = 'Saving...';
-    
-    // Assemble portfolio updates
-    const updatedData = {
-      id: 1,
-      name: elements.editName.value.trim() || 'Pradeep Sankar',
-      title: elements.editTitle.value.trim(),
-      avatar_url: elements.editAvatar.value.trim(),
-      bio: elements.editBio.value.trim(),
-      skills: portfolioData.skills,
-      projects: portfolioData.projects,
-      experience: portfolioData.experience,
-      socials: {
-        github: elements.editGithub.value.trim(),
-        linkedin: elements.editLinkedin.value.trim(),
-        twitter: elements.editTwitter.value.trim(),
-        email: elements.editEmail.value.trim(),
-        phone: elements.editPhone.value.trim(),
-        certificates: (portfolioData.socials && portfolioData.socials.certificates) || []
-      },
-      updated_at: new Date().toISOString()
+      inputSkill.value = '';
+      renderAdminSkillsList();
+      renderSkillsList();
+      showAdminNotice(`Added skill: "${val}"`, 'success');
     };
-    
-    // Update using the public anon client to bypass browser service role key blocks (forbidden on client side)
-    const { data, error } = await supabaseAnonClient
-      .from('portfolio')
-      .update(updatedData)
-      .eq('id', 1);
-      
-    if (error) {
-      if (error.code === 'PGRST205') {
-        throw new Error("Table 'portfolio' not found in database. Please run the SQL setup script in your dashboard SQL Editor first.");
-      }
-      throw error;
-    }
-    
-    // Update local state and trigger UI sync
-    portfolioData = updatedData;
-    renderPortfolio();
-    
-    alert("Portfolio changes successfully saved to Supabase backend!");
-    elements.adminDrawer.classList.remove('open');
-    
-  } catch (err) {
-    console.error("Save failed:", err);
-    alert("Failed to save changes: " + err.message);
-  } finally {
-    elements.btnSaveAll.disabled = false;
-    elements.btnSaveAll.textContent = 'Save Backend';
-  }
-}
 
-// 7. Supabase Storage Certificate Upload & Delete helpers
-async function uploadCertificate(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  elements.uploadStatus.textContent = `Uploading: ${file.name}...`;
-  elements.btnTriggerUpload.disabled = true;
-  
-  try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `cert_${Date.now()}.${fileExt}`;
-    
-    // Instantiate Admin Client using the secret key (allowed locally on client for this admin action dashboard)
-    // This allows us to bypass RLS restrictions and automatically create the bucket if missing!
-    const adminClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_SECRET_KEY);
-    
-    // 1. Verify if 'certificates' bucket exists, if not, create it programmatically
-    const { data: buckets, error: listError } = await adminClient.storage.listBuckets();
-    if (listError) throw listError;
-    
-    const bucketExists = buckets && buckets.some(b => b.id === 'certificates');
-    if (!bucketExists) {
-      elements.uploadStatus.textContent = 'Creating certificates bucket...';
-      const { error: createError } = await adminClient.storage.createBucket('certificates', {
-        public: true,
-        allowedMimeTypes: ['image/*', 'application/pdf'],
-        fileSizeLimit: 10485760 // 10MB
+    if (btnAddSkill) btnAddSkill.addEventListener('click', addSkillAction);
+    if (inputSkill) {
+      inputSkill.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addSkillAction();
+        }
       });
-      if (createError) throw createError;
     }
-    
-    // 2. Upload file via Admin Client to bypass RLS policies
-    elements.uploadStatus.textContent = 'Uploading file to storage...';
-    const { data, error } = await adminClient.storage
-      .from('certificates')
-      .upload(fileName, file);
-      
-    if (error) throw error;
-    
-    // 3. Retrieve public link
-    const { data: urlData } = adminClient.storage
-      .from('certificates')
-      .getPublicUrl(fileName);
-      
-    const publicUrl = urlData.publicUrl;
-    
-    // 4. Save metadata to portfolio table row (using socials JSONB column)
-    if (!portfolioData.socials) {
-      portfolioData.socials = {};
-    }
-    if (!Array.isArray(portfolioData.socials.certificates)) {
-      portfolioData.socials.certificates = [];
-    }
-    
-    portfolioData.socials.certificates.push({
-      name: file.name,
-      url: publicUrl,
-      uploaded_at: new Date().toISOString()
+  }
+
+  function renderAdminSkillsList() {
+    const container = document.getElementById('admin-skills-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    const skills = portfolioData.skills || [];
+
+    skills.forEach((skill, idx) => {
+      const name = typeof skill === 'string' ? skill : (skill.name || '');
+      const pill = document.createElement('span');
+      pill.className = 'admin-skill-pill';
+      pill.innerHTML = `
+        <span>${escapeHtml(name)}</span>
+        <button type="button" class="pill-remove-btn" title="Remove">&times;</button>
+      `;
+
+      pill.querySelector('.pill-remove-btn').addEventListener('click', () => {
+        portfolioData.skills.splice(idx, 1);
+        renderAdminSkillsList();
+        renderSkillsList();
+        showAdminNotice(`Removed skill "${name}".`, 'success');
+      });
+
+      container.appendChild(pill);
     });
-    
-    elements.uploadStatus.textContent = 'Saving to database...';
-    const { error: saveError } = await supabaseAnonClient
-      .from('portfolio')
-      .update({ socials: portfolioData.socials })
-      .eq('id', 1);
-      
-    if (saveError) throw saveError;
-    
-    elements.uploadStatus.textContent = 'Upload complete!';
-    renderPortfolio();
-    alert('Certificate uploaded and saved successfully!');
-  } catch (err) {
-    console.error('Upload failed:', err);
-    elements.uploadStatus.textContent = 'Upload failed!';
-    alert('Failed to upload certificate: ' + err.message);
-  } finally {
-    elements.btnTriggerUpload.disabled = false;
-    elements.certFileInput.value = '';
   }
-}
 
-async function deleteCertificate(idx) {
-  if (!confirm('Are you sure you want to delete this certificate?')) return;
-  
-  try {
-    if (portfolioData.socials && Array.isArray(portfolioData.socials.certificates)) {
-      portfolioData.socials.certificates.splice(idx, 1);
+  // 4. Experience Admin Management (Add, Delete)
+  function bindExperienceAdminControls() {
+    const btnToggle = document.getElementById('btn-toggle-add-exp');
+    const container = document.getElementById('exp-form-container');
+    const btnCancel = document.getElementById('btn-cancel-exp-entry');
+    const btnSave = document.getElementById('btn-save-exp-entry');
+
+    const inputRole = document.getElementById('exp-input-role');
+    const inputCompany = document.getElementById('exp-input-company');
+    const inputPeriod = document.getElementById('exp-input-period');
+    const inputDesc = document.getElementById('exp-input-desc');
+
+    if (btnToggle && container) {
+      btnToggle.addEventListener('click', () => {
+        const isHidden = container.style.display === 'none';
+        container.style.display = isHidden ? 'block' : 'none';
+        if (isHidden && inputRole) inputRole.focus();
+      });
     }
-    
-    const { error } = await supabaseAnonClient
-      .from('portfolio')
-      .update({ socials: portfolioData.socials })
-      .eq('id', 1);
-      
-    if (error) throw error;
-    
-    renderPortfolio();
-    alert('Certificate deleted successfully!');
-  } catch (err) {
-    console.error('Delete failed:', err);
-    alert('Failed to delete certificate: ' + err.message);
-  }
-}
 
-// Bind to window for inline onclick triggers
-window.deleteCertificate = deleteCertificate;
+    if (btnCancel && container) {
+      btnCancel.addEventListener('click', () => {
+        container.style.display = 'none';
+      });
+    }
+
+    if (btnSave && container) {
+      btnSave.addEventListener('click', () => {
+        const role = inputRole ? inputRole.value.trim() : '';
+        const company = inputCompany ? inputCompany.value.trim() : '';
+        const period = inputPeriod ? inputPeriod.value.trim() : '';
+        const desc = inputDesc ? inputDesc.value.trim() : '';
+
+        if (!role || !company) {
+          alert('Role and Company are required.');
+          return;
+        }
+
+        portfolioData.experience.unshift({
+          role,
+          company,
+          period: period || 'Present',
+          description: desc
+        });
+
+        if (inputRole) inputRole.value = '';
+        if (inputCompany) inputCompany.value = '';
+        if (inputPeriod) inputPeriod.value = '';
+        if (inputDesc) inputDesc.value = '';
+
+        container.style.display = 'none';
+        renderAdminExperienceList();
+        renderExperienceTimeline();
+        showAdminNotice(`Added experience milestone: "${role}"`, 'success');
+      });
+    }
+  }
+
+  function renderAdminExperienceList() {
+    const list = document.getElementById('admin-experience-list');
+    if (!list) return;
+
+    list.innerHTML = '';
+    const items = portfolioData.experience || [];
+
+    if (items.length === 0) {
+      list.innerHTML = '<div style="font-size: 12px; color: var(--muted); padding: 8px;">No experience entries.</div>';
+      return;
+    }
+
+    items.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'admin-item-row';
+      row.innerHTML = `
+        <div class="admin-item-info">
+          <span class="admin-item-title">${escapeHtml(item.role)}</span>
+          <span class="admin-item-meta">${escapeHtml(item.company)} &bull; ${escapeHtml(item.period)}</span>
+        </div>
+        <div class="admin-item-actions">
+          <button type="button" class="btn-mini danger btn-del-exp" data-index="${idx}">Delete</button>
+        </div>
+      `;
+
+      row.querySelector('.btn-del-exp').addEventListener('click', () => {
+        if (confirm(`Delete milestone "${item.role} at ${item.company}"?`)) {
+          portfolioData.experience.splice(idx, 1);
+          renderAdminExperienceList();
+          renderExperienceTimeline();
+          showAdminNotice(`Deleted experience milestone.`, 'success');
+        }
+      });
+
+      list.appendChild(row);
+    });
+  }
+
+  // 5. Database SQL Setup Assistant (1-Click Copy)
+  function bindSqlCopyButton() {
+    const btnCopy = document.getElementById('btn-copy-sql');
+    if (!btnCopy) return;
+
+    const sqlScript = `-- Supabase Schema for Pradeep Sankar's Portfolio
+-- Project: mvslanzuxigqrzsycmfw
+CREATE TABLE IF NOT EXISTS public.portfolio_data (
+  id INT PRIMARY KEY DEFAULT 1,
+  name TEXT DEFAULT 'Pradeep Sankar',
+  title TEXT DEFAULT 'Full Stack & 3D Creative Engineer',
+  bio TEXT DEFAULT 'I craft high-performance web applications, scalable backend systems, and interactive interfaces with modern glassmorphism, responsive systems, and real-time data sync.',
+  avatar_url TEXT DEFAULT 'IMG_20260528_204530_630.png',
+  skills JSONB DEFAULT '[]'::jsonb,
+  projects JSONB DEFAULT '[]'::jsonb,
+  experience JSONB DEFAULT '[]'::jsonb,
+  socials JSONB DEFAULT '{}'::jsonb,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+INSERT INTO public.portfolio_data (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
+
+ALTER TABLE public.portfolio_data ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public select policy" ON public.portfolio_data;
+CREATE POLICY "Public select policy" ON public.portfolio_data FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public insert policy" ON public.portfolio_data;
+CREATE POLICY "Public insert policy" ON public.portfolio_data FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public update policy" ON public.portfolio_data;
+CREATE POLICY "Public update policy" ON public.portfolio_data FOR UPDATE USING (true) WITH CHECK (true);
+`;
+
+    btnCopy.addEventListener('click', () => {
+      navigator.clipboard.writeText(sqlScript).then(() => {
+        const origText = btnCopy.innerHTML;
+        btnCopy.innerHTML = '✅ SQL Copied to Clipboard!';
+        showAdminNotice('SQL setup script copied! Paste it in your Supabase SQL Editor and click Run.', 'success');
+        setTimeout(() => {
+          btnCopy.innerHTML = origText;
+        }, 3000);
+      }).catch(() => {
+        alert('Could not copy automatically. Please open supabase_schema.sql in your workspace.');
+      });
+    });
+  }
+
+  // 6. Global Save Button (Saves all inputs to local cache and Supabase cloud)
+  function bindGlobalSaveButtons() {
+    const saveTop = document.getElementById('btn-global-save');
+    const saveBottom = document.getElementById('btn-global-save-bottom');
+
+    const executeGlobalSave = async () => {
+      // 1. Gather all inputs
+      const editName = document.getElementById('edit-name');
+      const editTitle = document.getElementById('edit-title');
+      const editAvatar = document.getElementById('edit-avatar');
+      const editBio = document.getElementById('edit-bio');
+      const editEmail = document.getElementById('edit-email');
+      const editPhone = document.getElementById('edit-phone');
+      const editGithub = document.getElementById('edit-github');
+      const editLinkedin = document.getElementById('edit-linkedin');
+
+      if (editName && editName.value.trim()) portfolioData.name = editName.value.trim();
+      if (editTitle && editTitle.value.trim()) portfolioData.title = editTitle.value.trim();
+      if (editAvatar && editAvatar.value.trim()) portfolioData.avatar_url = editAvatar.value.trim();
+      if (editBio && editBio.value.trim()) portfolioData.bio = editBio.value.trim();
+
+      portfolioData.socials = {
+        email: editEmail ? editEmail.value.trim() : (portfolioData.socials.email || ''),
+        phone: editPhone ? editPhone.value.trim() : (portfolioData.socials.phone || ''),
+        github: editGithub ? editGithub.value.trim() : (portfolioData.socials.github || ''),
+        linkedin: editLinkedin ? editLinkedin.value.trim() : (portfolioData.socials.linkedin || '')
+      };
+
+      // 2. Persist instantly in local storage cache
+      localStorage.setItem('portfolio_data_cache', JSON.stringify(portfolioData));
+
+      // 3. Update public DOM immediately
+      renderAllData();
+
+      // 4. Push to Supabase Cloud
+      const dot = document.getElementById('db-status-dot');
+      const statusText = document.getElementById('db-status-text');
+
+      if (statusText) statusText.textContent = 'Saving to Supabase...';
+
+      if (!CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY || typeof supabase === 'undefined') {
+        showAdminNotice('Saved locally! Supabase configuration is pending.', 'success');
+        if (statusText) statusText.textContent = 'Saved Locally';
+        return;
+      }
+
+      try {
+        const client = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        
+        const payload = {
+          id: 1,
+          name: portfolioData.name,
+          title: portfolioData.title,
+          bio: portfolioData.bio,
+          avatar_url: portfolioData.avatar_url,
+          skills: portfolioData.skills,
+          projects: portfolioData.projects,
+          experience: portfolioData.experience,
+          socials: portfolioData.socials,
+          updated_at: new Date().toISOString()
+        };
+
+        const { data, error } = await client
+          .from('portfolio_data')
+          .upsert(payload);
+
+        if (error) {
+          console.warn('Supabase sync notice:', error.message);
+          if (dot) dot.className = 'status-dot-warning';
+          if (statusText) statusText.textContent = 'Saved Locally (Cloud Pending)';
+          showAdminNotice(`Changes saved locally! Cloud sync pending: ${error.message}. If table isn't created yet, copy the SQL script below and run it in your Supabase SQL Editor.`, 'error');
+        } else {
+          if (dot) dot.className = 'status-dot-active';
+          if (statusText) statusText.textContent = 'Synced to Supabase Cloud';
+          showAdminNotice('🎉 Success! All portfolio data saved locally and synced to Supabase database.', 'success');
+        }
+      } catch (err) {
+        console.error('Supabase error:', err);
+        if (dot) dot.className = 'status-dot-warning';
+        if (statusText) statusText.textContent = 'Saved Locally';
+        showAdminNotice('Saved locally! Cloud sync error: ' + err.message, 'error');
+      }
+    };
+
+    if (saveTop) saveTop.addEventListener('click', executeGlobalSave);
+    if (saveBottom) saveBottom.addEventListener('click', executeGlobalSave);
+  }
+
+  // Admin Notification Banner
+  function showAdminNotice(msg, type) {
+    const alertBox = document.getElementById('admin-alert-msg');
+    if (!alertBox) return;
+
+    alertBox.className = `admin-alert ${type}`;
+    alertBox.textContent = msg;
+    alertBox.style.display = 'block';
+
+    setTimeout(() => {
+      alertBox.style.display = 'none';
+    }, 6000);
+  }
+
+  // HTML Entity Escaping
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+})();
