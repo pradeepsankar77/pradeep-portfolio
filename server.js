@@ -6,10 +6,10 @@ const PORT = 3000;
 const PUBLIC_DIR = __dirname;
 
 const MIME_TYPES = {
-  '.html': 'text/html',
-  '.css': 'text/css',
-  '.js': 'application/javascript',
-  '.json': 'application/json',
+  '.html': 'text/html; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
   '.jpg': 'image/jpeg',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
@@ -19,8 +19,9 @@ const MIME_TYPES = {
 const server = http.createServer((req, res) => {
   console.log(`${req.method} ${req.url}`);
   
-  // Normalize path to prevent directory traversal
-  let filePath = path.join(PUBLIC_DIR, req.url === '/' ? 'index.html' : req.url);
+  // Normalize path and strip query strings
+  const cleanUrl = req.url.split('?')[0];
+  let filePath = path.join(PUBLIC_DIR, cleanUrl === '/' ? 'index.html' : cleanUrl);
   
   // Check if file is inside public directory
   if (!filePath.startsWith(PUBLIC_DIR)) {
@@ -44,7 +45,7 @@ const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', contentType);
     
     const stream = fs.createReadStream(filePath);
-    stream.on('error', (streamErr) => {
+    stream.on('error', () => {
       res.statusCode = 500;
       res.end('Server Error');
     });
